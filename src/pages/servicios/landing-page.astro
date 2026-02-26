@@ -1,0 +1,1125 @@
+---
+/**
+ * src/pages/servicios/landing-pages.astro
+ *
+ * Página de servicio: Diseño de Landing Pages
+ *
+ * Secciones:
+ *  1. Hero — titular impactante + CTA primario
+ *  2. PricingTable — precio, features, CTA de conversión
+ *  3. Value Proposition — grilla de beneficios (por qué elegirnos)
+ *  4. Social Proof — grid de testimonios
+ *  5. Portfolio Preview — carrusel GSAP con ScrollTrigger
+ *  6. FAQ Accordion — preguntas técnicas y comerciales
+ *  7. Footer Extendido — sitemap completo
+ *
+ * Estética: "Editorial Conversión"
+ *  - Base dark del sistema
+ *  - Acento ámbar/dorado (#F5A623) para todos los CTAs y elementos de conversión
+ *  - Composición asimétrica, diagonal dividers
+ *  - La página demuestra con su propio diseño lo que vende
+ */
+
+import Layout         from '@layouts/Layout.astro';
+import Navbar         from '@organisms/Navbar.astro';
+import Footer         from '@organisms/Footer.astro';
+import Button         from '@atoms/Button.astro';
+import Icon           from '@atoms/Icon.astro';
+import Accordion      from '@molecules/Accordion.astro';
+import TestimonialCard from '@molecules/TestimonialCard.astro';
+import PricingTable   from '@organisms/PricingTable.astro';
+
+// ── Accent color for this page (conversion-focused warm gold)
+const ACCENT = '#F5A623';
+const ACCENT_COOL = '#0CF2D0'; // system primary for informational elements
+
+// ── Navigation data
+const navLinks = [
+  { label: 'Servicios', items: [
+    { label: 'Landing Pages',    href: '/servicios/landing-pages' },
+    { label: 'Sitios Web',       href: '/servicios/sitios-web' },
+    { label: 'Identidad Visual', href: '/servicios/identidad-visual' },
+  ]},
+  { label: 'Portfolio',    href: '/portfolio' },
+  { label: 'Nosotros',     href: '/nosotros' },
+  { label: 'Blog',         href: '/blog' },
+];
+
+// ── Pricing features
+const pricingFeatures = [
+  { text: 'Diseño 100% a medida, sin plantillas',       included: true, highlight: true },
+  { text: 'Hosting incluido el primer año',             included: true, note: 'Valor $8.000/año' },
+  { text: 'Dominio .com.ar o .com incluido',            included: true },
+  { text: 'Certificado SSL y HTTPS',                    included: true },
+  { text: 'Responsive: mobile, tablet y desktop',       included: true },
+  { text: 'Optimización SEO on-page completa',          included: true },
+  { text: 'Botón de WhatsApp con mensaje predefinido',  included: true },
+  { text: 'Formulario de contacto funcional',           included: true },
+  { text: 'Google Analytics 4 configurado',             included: true },
+  { text: 'Entrega en 7 a 10 días hábiles',             included: true, highlight: true },
+  { text: 'Revisiones ilimitadas hasta la aprobación',  included: true },
+  { text: 'Capacitación para editar contenido',         included: true },
+  { text: 'Tienda online / e-commerce',                 included: false },
+  { text: 'Gestor de contenido (CMS)',                  included: false },
+];
+
+// ── Value props
+const valueProps = [
+  {
+    icon:        'target' as const,
+    title:       'Estrategia de conversión',
+    description: 'Cada sección está diseñada con un objetivo: llevar al visitante a tomar acción. No es decoración, es arquitectura de persuasión.',
+    accent:      ACCENT,
+  },
+  {
+    icon:        'pen' as const,
+    title:       'Copywriting incluido',
+    description: 'Escribimos los textos con técnicas probadas de copywriting. Tus palabras, nuestra estructura. Mensajes que conectan y convierten.',
+    accent:      ACCENT_COOL,
+  },
+  {
+    icon:        'layout' as const,
+    title:       'UX/UI profesional',
+    description: 'Jerarquía visual, espacios bien balanceados y una experiencia fluida en cualquier dispositivo. Nada queda al azar.',
+    accent:      '#9B5DE5',
+  },
+  {
+    icon:        'search' as const,
+    title:       'SEO optimizado',
+    description: 'Metadatos, velocidad de carga, Core Web Vitals y estructura semántica correcta. Para que Google te encuentre y te muestre.',
+    accent:      '#1B6FFF',
+  },
+  {
+    icon:        'whatsapp' as const,
+    title:       'Botón de WhatsApp',
+    description: 'Integración directa con tu número. El canal de contacto más usado en Argentina, configurado con mensaje predefinido para no perder leads.',
+    accent:      '#22D35A',
+  },
+  {
+    icon:        'smartphone' as const,
+    title:       'Mobile-first siempre',
+    description: 'Más del 70% de tu tráfico llega desde el celular. Diseñamos primero para móvil y escalamos hacia pantallas más grandes.',
+    accent:      ACCENT,
+  },
+];
+
+// ── Testimonials
+const testimonials = [
+  {
+    quote:   'Antes de la landing page tenía muchas visitas pero casi nadie me escribía. Con la nueva página empecé a recibir consultas todos los días. Recuperé la inversión en dos semanas.',
+    author:  'Valentina Gómez',
+    role:    'Coach de nutrición',
+    company: 'Nutri Coach Valen',
+    rating:  5,
+    result:  { value: '+340%', label: 'consultas por WhatsApp en 30 días' },
+    accent:  ACCENT,
+    featured: true,
+  },
+  {
+    quote:   'El equipo entendió exactamente lo que necesitaba para mi servicio de mudanzas. La página cargó en tiempo récord y la gente me llama directo desde ahí.',
+    author:  'Rodrigo Peralta',
+    role:    'Dueño',
+    company: 'Mudanzas Express BA',
+    rating:  5,
+    accent:  ACCENT,
+  },
+  {
+    quote:   'Soy dentista y necesitaba algo profesional y confiable. Entregaron en 8 días como prometieron y el diseño es de primer nivel. Mis pacientes me dicen que la página les dio mucha confianza.',
+    author:  'Dra. Laura Méndez',
+    role:    'Odontóloga',
+    company: 'Consultorio Méndez',
+    rating:  5,
+    accent:  ACCENT,
+  },
+  {
+    quote:   'Tenía dudas de invertir porque ya había tenido malas experiencias. Esta vez fue completamente diferente: comunicación fluida, cumplieron los tiempos y el resultado superó mis expectativas.',
+    author:  'Federico Torres',
+    role:    'Contador Público',
+    company: 'Estudio Torres & Asoc.',
+    rating:  5,
+    result:  { value: '×2.5', label: 'tasa de cierre de clientes nuevos' },
+    accent:  ACCENT,
+    featured: true,
+  },
+];
+
+// ── Portfolio items (mock data — replace with real screenshots)
+const portfolioItems = [
+  { title: 'Nutricionista Online',  category: 'Salud & Wellness', color: '#0CF2D0', bgColor: '#0A2420' },
+  { title: 'Estudio Jurídico',      category: 'Legal & Finanzas',  color: '#1B6FFF', bgColor: '#0A0D20' },
+  { title: 'Servicio de Mudanzas',  category: 'Servicios',         color: '#F5A623', bgColor: '#1A1200' },
+  { title: 'Centro de Estética',    category: 'Belleza & Bienestar',color: '#9B5DE5', bgColor: '#140A20' },
+  { title: 'Consultora de RRHH',    category: 'Empresas',          color: '#22D35A', bgColor: '#0A1A10' },
+  { title: 'Taller Mecánico',       category: 'Automotor',         color: '#FF3B5C', bgColor: '#1A0A10' },
+];
+
+// ── FAQ items
+const faqItems = [
+  {
+    question: '¿Cuánto tiempo tarda la entrega?',
+    answer:   'El plazo estándar es de <strong>7 a 10 días hábiles</strong> desde que aprobamos el brief inicial y recibimos toda la información necesaria (textos, imágenes, logo). Proyectos más complejos pueden requerir algunos días adicionales, que acordamos de antemano.',
+    defaultOpen: true,
+  },
+  {
+    question: '¿Qué necesito tener listo antes de comenzar?',
+    answer:   'Lo básico: <ul><li>Logo en buena resolución (si no tenés, podemos diseñarlo)</li><li>Fotos o imágenes del servicio/producto</li><li>Información de contacto (teléfono, email, dirección si aplica)</li><li>Referencias de páginas que te gusten estéticamente</li></ul>El contenido textual lo desarrollamos juntos si lo necesitás.',
+  },
+  {
+    question: '¿El hosting está realmente incluido sin cargo?',
+    answer:   'Sí. El primer año de hosting en servidor de alta velocidad está bonificado. A partir del segundo año, el costo de renovación es de <strong>$8.000/año</strong> (precio 2024), que podés renovar directamente con nosotros o migrar a otro proveedor si preferís.',
+  },
+  {
+    question: '¿Puedo editar la página yo mismo después?',
+    answer:   'Depende del tipo de edición. Para cambios de texto simples te capacitamos en una videollamada de 30 minutos y quedás autónomo. Para cambios de diseño o estructura recomendamos contratarnos para garantizar que la página siga funcionando y cargando rápido. También ofrecemos planes de mantenimiento mensual.',
+  },
+  {
+    question: '¿La landing page aparece en Google?',
+    answer:   'La entregamos con <strong>SEO on-page completo</strong>: títulos, meta descripciones, estructura de encabezados correcta, URLs amigables, imágenes optimizadas y velocidad de carga mejorada. Eso prepara la base. El posicionamiento orgánico lleva tiempo — para resultados más rápidos podés complementar con Google Ads o Meta Ads.',
+    badge:    'SEO',
+  },
+  {
+    question: '¿Funciona bien en celulares?',
+    answer:   'Es la primera pregunta que nos hacemos en el diseño. El <strong>100% de nuestras landing pages son responsive</strong> y probadas en iOS y Android. De hecho diseñamos mobile-first: primero la versión móvil y luego adaptamos para tablet y desktop.',
+  },
+  {
+    question: '¿Qué pasa si no me gusta el resultado?',
+    answer:   'Ofrecemos <strong>revisiones ilimitadas</strong> dentro del proceso de diseño. Trabajamos con un flujo de aprobación por etapas: wireframe → diseño → desarrollo → revisión final. Si alguna etapa no cumple tus expectativas, la revisamos antes de avanzar. El objetivo es que apruebes cada paso.',
+  },
+  {
+    question: '¿Puedo agregar una tienda online después?',
+    answer:   'Una landing page estática no incluye funcionalidad de e-commerce. Si en el futuro necesitás vender productos o servicios online con carrito de compras, ese es un proyecto diferente (un sitio web completo con WooCommerce o Shopify). Te podemos cotizar la migración cuando lo necesites.',
+  },
+];
+
+// ── Footer data
+const footerColumns = [
+  {
+    heading: 'Servicios',
+    links: [
+      { label: 'Landing Pages',    href: '/servicios/landing-pages' },
+      { label: 'Sitios Web',       href: '/servicios/sitios-web' },
+      { label: 'Identidad Visual', href: '/servicios/identidad-visual' },
+      { label: 'SEO',              href: '/servicios/seo' },
+    ],
+  },
+  {
+    heading: 'Empresa',
+    links: [
+      { label: 'Nosotros',    href: '/nosotros' },
+      { label: 'Portfolio',   href: '/portfolio' },
+      { label: 'Blog',        href: '/blog' },
+      { label: 'Testimonios', href: '/testimonios' },
+    ],
+  },
+  {
+    heading: 'Contacto',
+    links: [
+      { label: 'WhatsApp',        href: 'https://wa.me/5491112345678', external: true, badge: 'Rápido' },
+      { label: 'Email',           href: 'mailto:hola@tuagencia.com.ar', external: true },
+      { label: 'Presupuesto',     href: '/contacto' },
+    ],
+  },
+];
+---
+
+<Layout
+  seo={{
+    title:       'Diseño de Landing Pages Profesionales | FinTech Platform',
+    description: 'Creamos landing pages estratégicas diseñadas para convertir visitantes en clientes. Diseño a medida, hosting incluido, entrega en 7-10 días. Optimizadas para SEO y dispositivos móviles.',
+    ogType:      'website',
+    jsonLd: {
+      '@type':       'Service',
+      name:          'Diseño de Landing Pages',
+      description:   'Servicio de diseño y desarrollo de landing pages estratégicas para conversión de leads',
+      provider: {
+        '@type': 'Organization',
+        name:    'FinTech Platform',
+      },
+      offers: {
+        '@type':         'Offer',
+        priceCurrency:   'ARS',
+        availability:    'https://schema.org/InStock',
+        deliveryLeadTime: '7-10 días hábiles',
+      },
+    },
+  }}
+>
+  <Navbar slot="navbar" links={navLinks} currentPath="/servicios/landing-pages" />
+
+  <!-- ════════════════════════════════════════════════════════
+       § 1. HERO
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="hero"
+    class="relative min-h-[92vh] flex items-center overflow-hidden pt-24"
+    aria-label="Hero"
+  >
+    <!-- Grid texture -->
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none opacity-40"
+      style="background-image: linear-gradient(rgba(245,166,35,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(245,166,35,0.04) 1px, transparent 1px); background-size: 48px 48px;"
+    />
+    <!-- Radial warm glow -->
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
+      style={`background: radial-gradient(ellipse 70% 60% at 60% -10%, ${ACCENT}0A 0%, transparent 60%);`}
+    />
+    <!-- Right side vertical accent bar -->
+    <div aria-hidden="true" class="absolute right-0 top-0 bottom-0 w-px hidden lg:block"
+      style={`background: linear-gradient(180deg, transparent, ${ACCENT}30, transparent);`}
+    />
+
+    <div class="container-site relative z-base w-full">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+
+        <!-- Left: copy -->
+        <div class="max-w-xl">
+          <div data-reveal="up" data-reveal-delay="0" class="mb-6">
+            <span class="section-eyebrow" style={`color: ${ACCENT}; background: ${ACCENT}10; border-color: ${ACCENT}30;`}>
+              <svg class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+                <circle cx="5" cy="5" r="5"/>
+              </svg>
+              Servicio · Diseño Web
+            </span>
+          </div>
+
+          <h1
+            data-reveal="up"
+            data-reveal-delay="0.1"
+            class="font-display font-extrabold text-5xl md:text-6xl lg:text-7xl text-primary mb-6"
+            style="letter-spacing: -0.03em; line-height: 1.0;"
+          >
+            Tu próximo<br/>
+            cliente ya<br/>
+            <span
+              class="relative inline-block"
+              style={`color: ${ACCENT};`}
+            >
+              te está buscando.
+              <!-- Underline decoration -->
+              <span
+                aria-hidden="true"
+                class="absolute -bottom-1 left-0 right-0 h-0.5 rounded-full"
+                style={`background: linear-gradient(90deg, ${ACCENT}, ${ACCENT}40);`}
+              />
+            </span>
+          </h1>
+
+          <p
+            data-reveal="up"
+            data-reveal-delay="0.2"
+            class="text-secondary text-lg leading-relaxed mb-10 max-w-lg"
+          >
+            Diseñamos landing pages que <strong class="text-primary font-semibold">convierten visitantes en clientes</strong>.
+            Sin plantillas, sin excusas. Entrega garantizada en 7 a 10 días hábiles
+            con hosting incluido el primer año.
+          </p>
+
+          <div
+            data-reveal="up"
+            data-reveal-delay="0.3"
+            class="flex flex-col sm:flex-row gap-4"
+          >
+            <a
+              href="#pricing"
+              class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-display font-bold text-base tracking-wide transition-all duration-normal ease-spring hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              style={`background: ${ACCENT}; color: #0A0C18; box-shadow: 0 8px 32px ${ACCENT}30; --tw-ring-color: ${ACCENT};`}
+            >
+              Ver precio y contratar
+              <svg class="ml-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </a>
+            <a
+              href="https://wa.me/5491112345678?text=Hola!%20Quiero%20consultar%20sobre%20landing%20pages"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-semibold text-base border transition-all duration-fast hover:border-neutral-300 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary text-secondary border-surface"
+            >
+              <Icon name="whatsapp" size={18} class="mr-2" color="#22D35A" />
+              Consultar por WhatsApp
+            </a>
+          </div>
+
+          <!-- Trust signals -->
+          <div
+            data-reveal="up"
+            data-reveal-delay="0.4"
+            class="flex items-center gap-6 mt-10 pt-8 border-t border-surface flex-wrap"
+          >
+            {[
+              { value: '+80',   label: 'proyectos entregados' },
+              { value: '100%',  label: 'clientes satisfechos' },
+              { value: '7–10d', label: 'de entrega promedio' },
+            ].map(s => (
+              <div>
+                <p class="font-display font-extrabold text-xl" style={`color: ${ACCENT};`}>{s.value}</p>
+                <p class="text-muted text-xs font-mono">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <!-- Right: visual mockup -->
+        <div
+          data-reveal="left"
+          data-reveal-delay="0.15"
+          class="relative hidden lg:flex items-center justify-center"
+          aria-hidden="true"
+        >
+          <!-- Browser chrome mockup -->
+          <div class="relative w-full max-w-sm xl:max-w-md">
+            <!-- Outer glow -->
+            <div class="absolute -inset-4 rounded-2xl opacity-30 blur-2xl"
+              style={`background: ${ACCENT}30;`}
+            />
+
+            <!-- Browser window -->
+            <div class="relative rounded-2xl overflow-hidden border border-surface/60 shadow-2xl"
+              style="background: #131626;"
+            >
+              <!-- Browser bar -->
+              <div class="flex items-center gap-2 px-4 py-3 border-b border-surface">
+                <div class="flex gap-1.5">
+                  <div class="w-2.5 h-2.5 rounded-full bg-neutral-600" />
+                  <div class="w-2.5 h-2.5 rounded-full bg-neutral-600" />
+                  <div class="w-2.5 h-2.5 rounded-full bg-neutral-600" />
+                </div>
+                <div class="flex-1 mx-3 bg-surface-card rounded px-3 py-1 text-xs text-muted font-mono truncate">
+                  tuservicio.com.ar
+                </div>
+              </div>
+
+              <!-- Mockup content -->
+              <div class="p-6 space-y-4">
+                <!-- Fake hero -->
+                <div class="space-y-2">
+                  <div class="h-2 rounded-full w-3/4" style={`background: ${ACCENT}40;`} />
+                  <div class="h-5 rounded-full w-5/6" style="background: rgba(245,246,250,0.15);" />
+                  <div class="h-5 rounded-full w-4/6" style="background: rgba(245,246,250,0.1);" />
+                  <div class="h-4 rounded-full w-full mt-2" style="background: rgba(245,246,250,0.06);" />
+                  <div class="h-4 rounded-full w-5/6" style="background: rgba(245,246,250,0.06);" />
+                </div>
+                <!-- Fake CTA button -->
+                <div class="h-10 rounded-lg w-40" style={`background: ${ACCENT};`} />
+                <!-- Fake cards row -->
+                <div class="grid grid-cols-3 gap-2 mt-4">
+                  {[ACCENT, ACCENT_COOL, '#9B5DE5'].map(c => (
+                    <div class="rounded-lg p-3 space-y-1.5" style={`background: ${c}10; border: 1px solid ${c}20;`}>
+                      <div class="w-4 h-4 rounded" style={`background: ${c}40;`} />
+                      <div class="h-2 rounded w-full" style="background: rgba(255,255,255,0.08);" />
+                      <div class="h-2 rounded w-4/5" style="background: rgba(255,255,255,0.05);" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <!-- Floating metric badge -->
+            <div
+              class="absolute -bottom-4 -right-4 glass rounded-xl px-4 py-3 shadow-lg"
+              style={`border: 1px solid ${ACCENT}30;`}
+            >
+              <p class="font-display font-extrabold text-lg" style={`color: ${ACCENT};`}>+340%</p>
+              <p class="text-muted text-[10px] font-mono">consultas en 30 días</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Diagonal section divider -->
+    <div
+      aria-hidden="true"
+      class="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+      style="background: linear-gradient(180deg, transparent, var(--color-surface-overlay, #131626));"
+    />
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 2. PRICING
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="pricing"
+    class="py-24 md:py-32"
+    aria-labelledby="pricing-heading"
+    style="background: var(--color-surface-overlay, #131626);"
+  >
+    <div class="container-site">
+      <div class="text-center mb-14">
+        <div class="flex justify-center mb-4" data-reveal="up">
+          <span class="section-eyebrow" style={`color: ${ACCENT}; background: ${ACCENT}10; border-color: ${ACCENT}30;`}>
+            Inversión
+          </span>
+        </div>
+        <h2
+          id="pricing-heading"
+          data-reveal="up"
+          data-reveal-delay="0.1"
+          class="font-display font-extrabold text-4xl md:text-5xl text-primary max-w-xl mx-auto"
+          style="letter-spacing: -0.02em;"
+        >
+          Un precio claro,<br/>sin sorpresas.
+        </h2>
+        <p class="text-secondary mt-4 max-w-lg mx-auto" data-reveal="up" data-reveal-delay="0.15">
+          Todo lo que necesitás para empezar a convertir visitas en clientes,
+          incluido desde el día uno.
+        </p>
+      </div>
+
+      <div class="max-w-lg mx-auto">
+        <PricingTable
+          name="Landing Page Profesional"
+          tagline="Diseño estratégico para convertir desde el día uno"
+          price="75.000"
+          pricePrefix="desde"
+          currency="$"
+          period="pago único · sin abono mensual"
+          features={pricingFeatures}
+          cta={{ label: 'Quiero mi landing page', href: '/contacto?servicio=landing-page' }}
+          ctaSecondary={{ label: 'Consultar por WhatsApp', href: 'https://wa.me/5491112345678' }}
+          badge="Más popular"
+          guarantee="Sin cargos ocultos · Revisiones ilimitadas hasta la aprobación"
+          accent={ACCENT}
+          featured={true}
+        />
+      </div>
+
+      <!-- Urgency note -->
+      <p
+        data-reveal="up"
+        class="text-center text-muted text-sm mt-6 font-mono"
+      >
+        ⚡ Tenemos disponibilidad para 2 proyectos más este mes
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 3. VALUE PROPOSITION
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="beneficios"
+    class="py-24 md:py-32 relative overflow-hidden"
+    aria-labelledby="vp-heading"
+  >
+    <!-- Background texture -->
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(ellipse 80% 50% at 0% 50%, rgba(12,242,208,0.04) 0%, transparent 60%);"
+    />
+
+    <div class="container-site relative z-base">
+      <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
+
+        <!-- Left: heading block -->
+        <div class="lg:sticky lg:top-28">
+          <div class="mb-4" data-reveal="up">
+            <span class="section-eyebrow">Por qué elegirnos</span>
+          </div>
+          <h2
+            id="vp-heading"
+            data-reveal="up"
+            data-reveal-delay="0.1"
+            class="font-display font-extrabold text-4xl md:text-5xl text-primary mb-6"
+            style="letter-spacing: -0.02em; line-height: 1.05;"
+          >
+            No vendemos<br/>
+            páginas.
+            <br/>
+            <span class="text-secondary font-normal">Vendemos resultados.</span>
+          </h2>
+          <p class="text-secondary leading-relaxed mb-8" data-reveal="up" data-reveal-delay="0.2">
+            Cada decisión de diseño, cada línea de texto y cada botón tiene un propósito:
+            que el visitante tome acción. Así es como lo logramos.
+          </p>
+          <div data-reveal="up" data-reveal-delay="0.25">
+            <a
+              href="#pricing"
+              class="inline-flex items-center gap-2 font-semibold text-sm transition-all duration-fast hover:gap-4"
+              style={`color: ${ACCENT};`}
+            >
+              Ver qué incluye
+              <Icon name="arrow-right" size={16} />
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: features grid -->
+        <div data-reveal-group class="grid sm:grid-cols-2 gap-4">
+          {valueProps.map((vp, i) => (
+            <div
+              data-reveal-item
+              class="group relative rounded-xl p-6 border border-surface bg-surface-card overflow-hidden transition-all duration-normal hover:border-transparent"
+              style={`--vp-accent: ${vp.accent};`}
+            >
+              <!-- Hover glow -->
+              <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-normal pointer-events-none rounded-xl"
+                style={`background: linear-gradient(135deg, ${vp.accent}08, transparent); box-shadow: inset 0 0 0 1px ${vp.accent}30;`}
+              />
+
+              <div class="relative z-base">
+                <!-- Icon -->
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-transform duration-normal ease-spring group-hover:scale-110"
+                  style={`background: ${vp.accent}14; color: ${vp.accent};`}
+                >
+                  <Icon name={vp.icon} size={18} />
+                </div>
+
+                <h3 class="font-display font-bold text-base text-primary mb-2 leading-snug">
+                  {vp.title}
+                </h3>
+                <p class="text-secondary text-sm leading-relaxed">
+                  {vp.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 4. SOCIAL PROOF — TESTIMONIALS
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="testimonios"
+    class="py-24 md:py-32 relative overflow-hidden"
+    aria-labelledby="testimonios-heading"
+    style="background: var(--color-surface-overlay, #131626);"
+  >
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
+      style={`background: radial-gradient(ellipse 60% 50% at 100% 50%, ${ACCENT}05 0%, transparent 60%);`}
+    />
+
+    <div class="container-site relative z-base">
+      <div class="text-center mb-14">
+        <div class="flex justify-center mb-4" data-reveal="up">
+          <span class="section-eyebrow" style={`color: ${ACCENT}; background: ${ACCENT}10; border-color: ${ACCENT}30;`}>
+            Testimonios reales
+          </span>
+        </div>
+        <h2
+          id="testimonios-heading"
+          data-reveal="up"
+          data-reveal-delay="0.1"
+          class="font-display font-extrabold text-4xl md:text-5xl text-primary max-w-2xl mx-auto"
+          style="letter-spacing: -0.02em;"
+        >
+          Lo que dicen los<br/>clientes que ya<br/>
+          <span style={`color: ${ACCENT};`}>convirtieron.</span>
+        </h2>
+      </div>
+
+      <!-- Featured testimonials (top row) -->
+      <div
+        data-reveal-group
+        class="grid md:grid-cols-2 gap-6 mb-6"
+      >
+        {testimonials.filter(t => t.featured).map(t => (
+          <div data-reveal-item>
+            <TestimonialCard {...t} />
+          </div>
+        ))}
+      </div>
+
+      <!-- Regular testimonials (bottom row) -->
+      <div
+        data-reveal-group
+        class="grid md:grid-cols-2 gap-6"
+      >
+        {testimonials.filter(t => !t.featured).map(t => (
+          <div data-reveal-item>
+            <TestimonialCard {...t} />
+          </div>
+        ))}
+      </div>
+
+      <!-- CTA below testimonials -->
+      <div class="text-center mt-12" data-reveal="up">
+        <p class="text-muted text-sm mb-4">¿Listo para unirte a estos resultados?</p>
+        <a
+          href="/contacto?servicio=landing-page"
+          class="inline-flex items-center justify-center h-12 px-8 rounded-xl font-bold text-sm tracking-wide transition-all duration-normal ease-spring hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+          style={`background: ${ACCENT}; color: #0A0C18; box-shadow: 0 4px 24px ${ACCENT}25; --tw-ring-color: ${ACCENT};`}
+        >
+          Quiero mi landing page
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 5. PORTFOLIO PREVIEW — GSAP CAROUSEL
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="portfolio"
+    class="py-24 md:py-32 overflow-hidden"
+    aria-labelledby="portfolio-heading"
+  >
+    <div class="container-site mb-12">
+      <div class="flex items-end justify-between gap-8 flex-wrap">
+        <div>
+          <div class="mb-4" data-reveal="up">
+            <span class="section-eyebrow">Portfolio</span>
+          </div>
+          <h2
+            id="portfolio-heading"
+            data-reveal="up"
+            data-reveal-delay="0.1"
+            class="font-display font-extrabold text-4xl md:text-5xl text-primary"
+            style="letter-spacing: -0.02em;"
+          >
+            Trabajos que<br/>hablan solos.
+          </h2>
+        </div>
+        <div data-reveal="left" data-reveal-delay="0.1">
+          <a
+            href="/portfolio"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition-colors duration-fast"
+          >
+            Ver portfolio completo
+            <Icon name="arrow-up-right" size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carousel track — GSAP animates this -->
+    <div id="portfolio-carousel" class="relative" aria-label="Portfolio de trabajos">
+      <div id="portfolio-track" class="flex gap-5 will-change-transform" style="width: max-content; padding: 0 max(24px, calc((100vw - 1320px)/2 + 64px));">
+        {portfolioItems.map((item, i) => (
+          <article
+            class="portfolio-card relative rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer group"
+            style={`width: 320px; height: 420px; background: ${item.bgColor}; border: 1px solid ${item.color}20;`}
+            tabindex="0"
+            aria-label={`${item.title} — ${item.category}`}
+          >
+            <!-- Animated gradient overlay -->
+            <div
+              class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-slow"
+              style={`background: linear-gradient(135deg, ${item.color}15 0%, transparent 60%);`}
+              aria-hidden="true"
+            />
+
+            <!-- Top border glow -->
+            <div
+              class="absolute top-0 left-0 right-0 h-px"
+              style={`background: linear-gradient(90deg, transparent, ${item.color}60, transparent);`}
+              aria-hidden="true"
+            />
+
+            <!-- Card content -->
+            <div class="absolute inset-0 p-6 flex flex-col justify-between">
+              <!-- Header -->
+              <div class="flex items-start justify-between">
+                <span
+                  class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase"
+                  style={`background: ${item.color}14; color: ${item.color}; border: 1px solid ${item.color}25;`}
+                >
+                  {item.category}
+                </span>
+                <div
+                  class="w-8 h-8 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-normal translate-y-2 group-hover:translate-y-0"
+                  style={`background: ${item.color}20; color: ${item.color};`}
+                  aria-hidden="true"
+                >
+                  <Icon name="arrow-up-right" size={14} />
+                </div>
+              </div>
+
+              <!-- Mock wireframe body -->
+              <div class="flex-1 flex items-center justify-center py-8" aria-hidden="true">
+                <div class="w-full space-y-3">
+                  <div class="h-1.5 rounded-full w-3/4 mx-auto" style={`background: ${item.color}25;`} />
+                  <div class="h-6 rounded w-5/6 mx-auto" style="background: rgba(255,255,255,0.06);" />
+                  <div class="h-6 rounded w-4/6 mx-auto" style="background: rgba(255,255,255,0.04);" />
+                  <div class="h-4 rounded w-full" style="background: rgba(255,255,255,0.03);" />
+                  <div class="h-8 rounded-lg w-32 mx-auto mt-4" style={`background: ${item.color}30;`} />
+                </div>
+              </div>
+
+              <!-- Footer -->
+              <div>
+                <h3 class="font-display font-bold text-lg text-primary mb-1">{item.title}</h3>
+                <p class="text-sm font-mono" style={`color: ${item.color};`}>Ver proyecto →</p>
+              </div>
+            </div>
+          </article>
+        ))}
+
+        <!-- Duplicate cards for infinite illusion -->
+        {portfolioItems.map((item, i) => (
+          <article
+            class="portfolio-card relative rounded-2xl overflow-hidden flex-shrink-0"
+            style={`width: 320px; height: 420px; background: ${item.bgColor}; border: 1px solid ${item.color}20;`}
+            aria-hidden="true"
+          >
+            <div class="absolute top-0 left-0 right-0 h-px" style={`background: linear-gradient(90deg, transparent, ${item.color}60, transparent);`} />
+            <div class="absolute inset-0 p-6 flex flex-col justify-between">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase"
+                style={`background: ${item.color}14; color: ${item.color}; border: 1px solid ${item.color}25;`}>
+                {item.category}
+              </span>
+              <div class="flex-1 flex items-center justify-center py-8">
+                <div class="w-full space-y-3">
+                  <div class="h-1.5 rounded-full w-3/4 mx-auto" style={`background: ${item.color}25;`} />
+                  <div class="h-6 rounded w-5/6 mx-auto" style="background: rgba(255,255,255,0.06);" />
+                  <div class="h-6 rounded w-4/6 mx-auto" style="background: rgba(255,255,255,0.04);" />
+                  <div class="h-8 rounded-lg w-32 mx-auto mt-4" style={`background: ${item.color}30;`} />
+                </div>
+              </div>
+              <div>
+                <h3 class="font-display font-bold text-lg text-primary mb-1">{item.title}</h3>
+                <p class="text-sm font-mono" style={`color: ${item.color};`}>Ver proyecto →</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- Drag hint -->
+    <div class="container-site mt-6">
+      <p class="text-muted text-xs font-mono flex items-center gap-2">
+        <span aria-hidden="true">← →</span>
+        Arrastrá para explorar los trabajos
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 6. FAQ ACCORDION
+  ════════════════════════════════════════════════════════ -->
+  <section
+    id="faq"
+    class="py-24 md:py-32 relative"
+    aria-labelledby="faq-heading"
+    style="background: var(--color-surface-overlay, #131626);"
+  >
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(ellipse 50% 60% at 50% 100%, rgba(12,242,208,0.04) 0%, transparent 70%);"
+    />
+
+    <div class="container-site relative z-base">
+      <div class="grid lg:grid-cols-5 gap-12 lg:gap-20 items-start">
+
+        <!-- Left: heading -->
+        <div class="lg:col-span-2">
+          <div class="mb-4" data-reveal="up">
+            <span class="section-eyebrow">FAQ</span>
+          </div>
+          <h2
+            id="faq-heading"
+            data-reveal="up"
+            data-reveal-delay="0.1"
+            class="font-display font-extrabold text-4xl md:text-5xl text-primary mb-6"
+            style="letter-spacing: -0.02em; line-height: 1.05;"
+          >
+            Preguntas<br/>
+            frecuentes.
+          </h2>
+          <p class="text-secondary leading-relaxed mb-8" data-reveal="up" data-reveal-delay="0.15">
+            Todo lo que necesitás saber antes de empezar.
+            Si no encontrás tu pregunta, escribinos por WhatsApp.
+          </p>
+          <div data-reveal="up" data-reveal-delay="0.2">
+            <a
+              href="https://wa.me/5491112345678"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold transition-all duration-fast hover:brightness-110 focus-visible:outline-none focus-visible:ring-2"
+              style={`background: #22D35A1A; color: #22D35A; border: 1px solid #22D35A30; --tw-ring-color: #22D35A;`}
+            >
+              <Icon name="whatsapp" size={16} />
+              Hacer una pregunta
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: accordion -->
+        <div class="lg:col-span-3" data-reveal="up" data-reveal-delay="0.1">
+          <Accordion
+            items={faqItems}
+            variant="default"
+            allowMultiple={false}
+            accent={ACCENT_COOL}
+          />
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § CTA FINAL — before footer
+  ════════════════════════════════════════════════════════ -->
+  <section
+    class="py-24 md:py-32 relative overflow-hidden"
+    aria-label="Llamada a la acción final"
+  >
+    <!-- Animated gradient background -->
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
+      style={`background: radial-gradient(ellipse 80% 70% at 50% 50%, ${ACCENT}08 0%, transparent 60%);`}
+    />
+    <!-- Grid -->
+    <div aria-hidden="true" class="absolute inset-0 pointer-events-none opacity-30"
+      style={`background-image: linear-gradient(${ACCENT}05 1px, transparent 1px), linear-gradient(90deg, ${ACCENT}05 1px, transparent 1px); background-size: 48px 48px;`}
+    />
+
+    <div class="container-site relative z-base text-center">
+      <div class="max-w-2xl mx-auto">
+        <div class="flex justify-center mb-6" data-reveal="up">
+          <span class="section-eyebrow" style={`color: ${ACCENT}; background: ${ACCENT}10; border-color: ${ACCENT}30;`}>
+            Empezá hoy
+          </span>
+        </div>
+        <h2
+          data-reveal="up"
+          data-reveal-delay="0.1"
+          class="font-display font-extrabold text-5xl md:text-6xl text-primary mb-6"
+          style="letter-spacing: -0.03em; line-height: 1.0;"
+        >
+          Tu próxima landing<br/>
+          <span style={`color: ${ACCENT};`}>puede ser la mejor</span><br/>
+          inversión de este año.
+        </h2>
+        <p class="text-secondary text-lg mb-10 leading-relaxed" data-reveal="up" data-reveal-delay="0.15">
+          Tenemos disponibilidad limitada. Contactanos hoy
+          y te enviamos una propuesta sin cargo en 24hs.
+        </p>
+        <div
+          data-reveal="up"
+          data-reveal-delay="0.2"
+          class="flex flex-col sm:flex-row gap-4 justify-center"
+        >
+          <a
+            href="/contacto?servicio=landing-page"
+            class="inline-flex items-center justify-center h-14 px-10 rounded-xl font-display font-bold text-base tracking-wide transition-all duration-normal ease-spring hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2"
+            style={`background: ${ACCENT}; color: #0A0C18; box-shadow: 0 8px 40px ${ACCENT}35; --tw-ring-color: ${ACCENT};`}
+          >
+            Solicitar presupuesto gratis
+          </a>
+          <a
+            href="https://wa.me/5491112345678?text=Hola!%20Quiero%20consultar%20sobre%20una%20landing%20page"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-semibold text-base border transition-all duration-fast hover:border-neutral-300 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary text-secondary border-surface"
+          >
+            <Icon name="whatsapp" size={18} class="mr-2" color="#22D35A" />
+            Escribir por WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       § 7. FOOTER
+  ════════════════════════════════════════════════════════ -->
+  <Footer
+    slot="footer"
+    brandName="FinTech Platform"
+    brandTagline="Diseñamos páginas que convierten visitas en clientes. Sin plantillas, sin excusas."
+    columns={footerColumns}
+    contact={{
+      email:   'hola@tuagencia.com.ar',
+      phone:   '+54 11 1234-5678',
+      address: 'Buenos Aires, Argentina',
+    }}
+    social={{
+      instagram: 'https://instagram.com/tuagencia',
+      linkedin:  'https://linkedin.com/company/tuagencia',
+      whatsapp:  'https://wa.me/5491112345678',
+    }}
+    legal={{
+      copyright: `© ${new Date().getFullYear()} FinTech Platform. Todos los derechos reservados.`,
+      links: [
+        { label: 'Política de privacidad', href: '/privacidad' },
+        { label: 'Términos de uso',         href: '/terminos' },
+      ],
+    }}
+    accent={ACCENT_COOL}
+  />
+</Layout>
+
+
+<!-- ════════════════════════════════════════════════════════
+     PORTFOLIO CAROUSEL — GSAP
+════════════════════════════════════════════════════════ -->
+<script>
+  /**
+   * Portfolio Carousel
+   * Uses GSAP to create a smooth auto-scrolling carousel.
+   * Two behaviors:
+   *  a) Auto-scroll: plays automatically on scroll via ScrollTrigger
+   *  b) Drag: user can grab and drag the track
+   */
+  (function initCarousel() {
+    const tryInit = () => {
+      if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') {
+        setTimeout(tryInit, 120);
+        return;
+      }
+
+      const { gsap } = window;
+
+      const track    = document.getElementById('portfolio-track') as HTMLElement | null;
+      const carousel = document.getElementById('portfolio-carousel') as HTMLElement | null;
+      if (!track || !carousel) return;
+
+      // Respect reduced motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      const cards        = Array.from(track.querySelectorAll('.portfolio-card')) as HTMLElement[];
+      const totalCards   = cards.length / 2; // half are duplicates
+      const cardWidth    = 320;
+      const gap          = 20;
+      const singleSetWidth = (cardWidth + gap) * totalCards;
+
+      // ── Auto-scroll animation (infinite loop via modular arithmetic)
+      const autoTween = gsap.to(track, {
+        x:          () => -singleSetWidth,
+        duration:   25,
+        ease:       'none',
+        repeat:     -1,
+        modifiers: {
+          x: gsap.utils.unitize((x: string) => parseFloat(x) % singleSetWidth),
+        },
+      });
+
+      // ── Pause on hover / focus
+      carousel.addEventListener('mouseenter', () => autoTween.pause());
+      carousel.addEventListener('mouseleave', () => autoTween.resume());
+      carousel.addEventListener('focusin',    () => autoTween.pause());
+      carousel.addEventListener('focusout',   () => autoTween.resume());
+
+      // ── Drag to scroll
+      let isDragging    = false;
+      let startX        = 0;
+      let startScrollX  = 0;
+      let currentX      = 0;
+      let velocity      = 0;
+      let lastX         = 0;
+      let lastTimestamp = 0;
+      let rafId: number | null = null;
+
+      const onDown = (e: MouseEvent | TouchEvent) => {
+        isDragging   = true;
+        startX       = e instanceof MouseEvent ? e.clientX : e.touches[0]!.clientX;
+        lastX        = startX;
+        lastTimestamp = Date.now();
+        startScrollX = gsap.getProperty(track, 'x') as number;
+        autoTween.pause();
+        track.style.cursor = 'grabbing';
+        if (rafId) cancelAnimationFrame(rafId);
+      };
+
+      const onMove = (e: MouseEvent | TouchEvent) => {
+        if (!isDragging) return;
+        const clientX = e instanceof MouseEvent ? e.clientX : e.touches[0]!.clientX;
+        const now     = Date.now();
+        velocity      = (clientX - lastX) / (now - lastTimestamp || 1);
+        lastX         = clientX;
+        lastTimestamp = now;
+
+        const dx = clientX - startX;
+        currentX = startScrollX + dx;
+        gsap.set(track, { x: currentX });
+      };
+
+      const onUp = () => {
+        if (!isDragging) return;
+        isDragging         = false;
+        track.style.cursor = 'grab';
+
+        // Momentum scroll
+        const momentumTarget = currentX + velocity * 400;
+        gsap.to(track, {
+          x:        momentumTarget,
+          duration: 0.8,
+          ease:     'power3.out',
+          onComplete: () => autoTween.resume(),
+        });
+      };
+
+      track.style.cursor = 'grab';
+      track.addEventListener('mousedown',  onDown as EventListener);
+      track.addEventListener('touchstart', onDown as EventListener, { passive: true });
+      window.addEventListener('mousemove', onMove as EventListener);
+      window.addEventListener('touchmove', onMove as EventListener, { passive: true });
+      window.addEventListener('mouseup',   onUp);
+      window.addEventListener('touchend',  onUp);
+
+      // ── Card hover effect (lift + glow)
+      cards.forEach((card) => {
+        card.addEventListener('mouseenter', () => {
+          gsap.to(card, { y: -8, scale: 1.02, duration: 0.4, ease: 'power2.out' });
+        });
+        card.addEventListener('mouseleave', () => {
+          gsap.to(card, { y: 0,  scale: 1.00, duration: 0.4, ease: 'power2.inOut' });
+        });
+      });
+    };
+
+    tryInit();
+  })();
+</script>
+
+<!-- ════════════════════════════════════════════════════════
+     FLOATING WHATSAPP BUTTON
+════════════════════════════════════════════════════════ -->
+<div
+  id="whatsapp-fab"
+  class="fixed bottom-6 right-6 z-toast"
+  data-reveal="up"
+  data-reveal-delay="0.5"
+>
+  <a
+    href="https://wa.me/5491112345678?text=Hola!%20Vi%20tu%20p%C3%A1gina%20de%20landing%20pages%20y%20quiero%20consultar."
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Contactar por WhatsApp"
+    class="
+      relative flex items-center gap-2.5 h-12 pl-3 pr-4 rounded-full
+      font-semibold text-sm text-white
+      shadow-lg
+      transition-all duration-normal ease-spring
+      hover:scale-105 hover:shadow-xl
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+    "
+    style="background: #22C55E; box-shadow: 0 4px 24px rgba(34,197,94,0.4); --tw-ring-color: #22C55E;"
+  >
+    <!-- Pulse ring -->
+    <span aria-hidden="true" class="absolute -inset-1 rounded-full animate-ping opacity-20" style="background: #22C55E;" />
+
+    <Icon name="whatsapp" size={20} color="white" />
+    <span class="hidden sm:block">¿Charlamos?</span>
+  </a>
+</div>
+
+<style>
+  /* ── Section transitions */
+  #hero, #beneficios, #portfolio, #faq {
+    background-color: var(--color-surface-bg, #0A0C18);
+  }
+
+  /* ── Portfolio cursor states */
+  #portfolio-track {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── Accordion trigger focus color override for this page */
+  .accordion-trigger:focus-visible {
+    outline-color: #F5A623;
+  }
+</style>

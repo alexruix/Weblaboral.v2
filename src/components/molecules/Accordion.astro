@@ -1,0 +1,254 @@
+---
+/**
+ * Accordion.astro — Molecule
+ * Accessible, animated FAQ accordion.
+ * Animation: CSS max-height transition (no GSAP needed at molecule level).
+ * A11y: uses <details>/<summary> native semantics + ARIA enhancements.
+ *
+ * Props:
+ *  items  — array of { question, answer, defaultOpen? }
+ *  variant — 'default' | 'bordered' | 'flush'
+ *  allowMultiple — if false (default), only one item open at a time
+ */
+
+interface AccordionItem {
+  /** The question / trigger text */
+  question:     string;
+  /** The answer / content (HTML string supported) */
+  answer:       string;
+  /** Open by default */
+  defaultOpen?: boolean;
+  /** Optional badge next to question */
+  badge?:       string;
+}
+
+type AccordionVariant = 'default' | 'bordered' | 'flush';
+
+interface Props {
+  items:          AccordionItem[];
+  variant?:       AccordionVariant;
+  allowMultiple?: boolean;
+  /** Accent color for open state indicator */
+  accent?:        string;
+  class?:         string;
+}
+
+const {
+  items,
+  variant       = 'default',
+  allowMultiple = false,
+  accent        = '#0CF2D0',
+  class: className,
+} = Astro.props;
+
+const variantClasses: Record<AccordionVariant, { wrapper: string; item: string }> = {
+  default: {
+    wrapper: 'space-y-2',
+    item:    'bg-surface-card rounded-xl border border-surface overflow-hidden',
+  },
+  bordered: {
+    wrapper: 'space-y-0 border border-surface rounded-xl overflow-hidden divide-y divide-surface',
+    item:    'bg-transparent',
+  },
+  flush: {
+    wrapper: 'space-y-0 divide-y divide-surface',
+    item:    'bg-transparent',
+  },
+};
+
+const v = variantClasses[variant];
+---
+
+<div
+  class:list={['accordion-root', v.wrapper, className]}
+  data-accordion
+  data-allow-multiple={allowMultiple ? 'true' : 'false'}
+>
+  {items.map((item, i) => (
+    <div
+      class:list={['accordion-item', v.item]}
+      data-accordion-item
+      data-default-open={item.defaultOpen ? 'true' : 'false'}
+    >
+      <!-- Trigger -->
+      <button
+        type="button"
+        class="
+          accordion-trigger
+          w-full flex items-start justify-between
+          px-6 py-5
+          text-left
+          gap-4
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset
+          transition-colors duration-fast
+        "
+        style={`--accent: ${accent};`}
+        aria-expanded={item.defaultOpen ? 'true' : 'false'}
+        aria-controls={`accordion-panel-${i}`}
+        id={`accordion-trigger-${i}`}
+      >
+        <span class="flex items-center gap-3 flex-1 min-w-0">
+          <span class="font-display font-semibold text-base text-primary leading-snug">
+            {item.question}
+          </span>
+          {item.badge && (
+            <span class="tag-label shrink-0 text-[10px]">{item.badge}</span>
+          )}
+        </span>
+
+        <!-- Animated chevron -->
+        <span
+          aria-hidden="true"
+          class="accordion-icon shrink-0 flex items-center justify-center w-6 h-6 rounded-md transition-all duration-normal ease-spring mt-0.5"
+          style={`background: ${accent}12; color: ${accent};`}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+
+      <!-- Panel -->
+      <div
+        id={`accordion-panel-${i}`}
+        role="region"
+        aria-labelledby={`accordion-trigger-${i}`}
+        class="accordion-panel overflow-hidden"
+        style={item.defaultOpen ? '' : 'max-height: 0;'}
+      >
+        <div class="px-6 pb-6 pt-0">
+          <div
+            class="text-secondary text-sm leading-relaxed prose-answer"
+            set:html={item.answer}
+          />
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
+<script>
+  document.querySelectorAll('[data-accordion]').forEach((accordion) => {
+    const allowMultiple = accordion.getAttribute('data-allow-multiple') === 'true';
+    const items = Array.from(accordion.querySelectorAll('[data-accordion-item]'));
+
+    // ── Init default-open items
+    items.forEach((item) => {
+      if (item.getAttribute('data-default-open') === 'true') {
+        const panel   = item.querySelector('.accordion-panel') as HTMLElement | null;
+        const trigger = item.querySelector('.accordion-trigger') as HTMLButtonElement | null;
+        if (panel)   panel.style.maxHeight   = `${panel.scrollHeight}px`;
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
+        item.setAttribute('data-open', 'true');
+      }
+    });
+
+    // ── Toggle function
+    function toggleItem(item: Element, force?: boolean): void {
+      const trigger = item.querySelector('.accordion-trigger') as HTMLButtonElement;
+      const panel   = item.querySelector('.accordion-panel')   as HTMLElement;
+      const icon    = item.querySelector('.accordion-icon')    as HTMLElement;
+      if (!trigger || !panel) return;
+
+      const isOpen = force !== undefined ? !force : item.hasAttribute('data-open');
+
+      if (isOpen) {
+        // Close
+        panel.style.maxHeight  = `${panel.scrollHeight}px`;
+        requestAnimationFrame(() => {
+          panel.style.maxHeight  = '0';
+        });
+        trigger.setAttribute('aria-expanded', 'false');
+        item.removeAttribute('data-open');
+        if (icon) icon.style.transform = '';
+      } else {
+        // Open
+        panel.style.maxHeight  = `${panel.scrollHeight}px`;
+        trigger.setAttribute('aria-expanded', 'true');
+        item.setAttribute('data-open', 'true');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+
+        // Reset max-height after transition for responsive resizing
+        panel.addEventListener('transitionend', () => {
+          if (item.hasAttribute('data-open')) panel.style.maxHeight = 'none';
+        }, { once: true });
+      }
+    }
+
+    // ── Click handlers
+    items.forEach((item) => {
+      const trigger = item.querySelector('.accordion-trigger') as HTMLButtonElement;
+
+      // Init icon for already-open items
+      if (item.getAttribute('data-default-open') === 'true') {
+        const icon = item.querySelector('.accordion-icon') as HTMLElement | null;
+        if (icon) icon.style.transform = 'rotate(180deg)';
+      }
+
+      trigger?.addEventListener('click', () => {
+        // If only one allowed, close all others first
+        if (!allowMultiple) {
+          items.forEach((other) => {
+            if (other !== item && other.hasAttribute('data-open')) {
+              toggleItem(other, false);
+            }
+          });
+        }
+        toggleItem(item);
+      });
+
+      // Keyboard: Space and Enter handled natively by button
+      // Arrow keys for enhanced navigation
+      trigger?.addEventListener('keydown', (e) => {
+        const key = (e as KeyboardEvent).key;
+        const idx = items.indexOf(item);
+
+        if (key === 'ArrowDown') {
+          e.preventDefault();
+          const next = items[idx + 1] ?? items[0];
+          (next?.querySelector('.accordion-trigger') as HTMLButtonElement)?.focus();
+        }
+        if (key === 'ArrowUp') {
+          e.preventDefault();
+          const prev = items[idx - 1] ?? items[items.length - 1];
+          (prev?.querySelector('.accordion-trigger') as HTMLButtonElement)?.focus();
+        }
+        if (key === 'Home') {
+          e.preventDefault();
+          (items[0]?.querySelector('.accordion-trigger') as HTMLButtonElement)?.focus();
+        }
+        if (key === 'End') {
+          e.preventDefault();
+          (items[items.length - 1]?.querySelector('.accordion-trigger') as HTMLButtonElement)?.focus();
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .accordion-panel {
+    transition: max-height 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .accordion-trigger:hover .accordion-icon {
+    transform: translateY(1px);
+  }
+
+  [data-open] .accordion-icon {
+    transform: rotate(180deg);
+  }
+
+  .accordion-trigger:focus-visible {
+    outline: 2px solid var(--accent, #0CF2D0);
+    outline-offset: -2px;
+    border-radius: 12px;
+  }
+
+  /* Prose styles for HTML answer content */
+  .prose-answer :global(strong) { color: var(--color-text-primary, #F5F6FA); font-weight: 600; }
+  .prose-answer :global(a)      { color: var(--color-brand-primary, #0CF2D0); text-decoration: underline; text-underline-offset: 3px; }
+  .prose-answer :global(ul)     { list-style: disc; padding-left: 1.25rem; margin-top: 0.5rem; }
+  .prose-answer :global(li)     { margin-bottom: 0.25rem; }
+  .prose-answer :global(code)   { font-family: 'JetBrains Mono', monospace; font-size: 0.8em; background: rgba(255,255,255,0.06); padding: 0.1em 0.4em; border-radius: 4px; }
+</style>

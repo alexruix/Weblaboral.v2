@@ -1,23 +1,294 @@
+---
+/**
+ * Layout.astro — Base layout
+ *
+ * Audit fixes applied:
+ *  [2] FOUC script now adds matchMedia 'change' listener for live OS pref updates
+ *  [3] initMotion() is idempotent + re-called on astro:page-load (View Transitions)
+ *  [3] ScrollTrigger.getAll().forEach(t => t.kill()) before each re-init
+ *  [6] Types resolved via src/types/gsap.d.ts — no `unknown` casts
+ */
+export interface SEOProps {
+  title:         string;
+  description:   string;
+  canonical?:    string;
+  ogImage?:      string;
+  ogType?:       'website' | 'article';
+  noIndex?:      boolean;
+  jsonLd?:       Record<string, unknown>;
+}
+
+interface Props {
+  seo:    SEOProps;
+  class?: string;
+}
+
+const { seo, class: className } = Astro.props;
+
+const site      = Astro.site ?? new URL('https://fintech.example.com');
+const canonical = seo.canonical ?? new URL(Astro.url.pathname, site).href;
+const ogImage   = seo.ogImage   ?? new URL('/og-default.jpg', site).href;
+
+const defaultJsonLd = {
+  '@context':  'https://schema.org',
+  '@type':     'FinancialService',
+  name:        'FinTech Platform',
+  url:         site.href,
+  description: seo.description,
+  ...seo.jsonLd,
+};
+---
+
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{seo.title}</title>
+    <meta name="description"  content={seo.description} />
+    <link rel="canonical"     href={canonical} />
+    {seo.noIndex && <meta name="robots" content="noindex,nofollow" />}
+
+    <meta property="og:type"         content={seo.ogType ?? 'website'} />
+    <meta property="og:title"        content={seo.title} />
+    <meta property="og:description"  content={seo.description} />
+    <meta property="og:url"          content={canonical} />
+    <meta property="og:image"        content={ogImage} />
+    <meta property="og:image:width"  content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale"       content="es_AR" />
+    <meta property="og:site_name"    content="FinTech Platform" />
+
+    <meta name="twitter:card"        content="summary_large_image" />
+    <meta name="twitter:title"       content={seo.title} />
+    <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image"       content={ogImage} />
+
+    <link rel="icon"             href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon"             href="/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest"         href="/site.webmanifest" />
+    <meta name="theme-color"     content="#0A0C18" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(defaultJsonLd)} />
+
+    <!--
+      ╔══════════════════════════════════════════════════════════╗
+      ║  FOUC PREVENTION  (audit fix #2)                         ║
+      ║                                                          ║
+      ║  Runs synchronously (is:inline) before first paint.      ║
+      ║  • Reads localStorage; falls back to OS pref.            ║
+      ║  • Applies .dark/.light to <html> before any CSS.        ║
+      ║  • Adds matchMedia 'change' listener for LIVE OS sync.   ║
+      ║                                                          ║
+      ║  Kept intentionally tiny (< 500 bytes unminified)        ║
+      ║  to minimize synchronous main-thread block time.         ║
+      ║  localStorage.getItem is ~0.01ms; matchMedia ~0.002ms.   ║
+      ╚══════════════════════════════════════════════════════════╝
+    -->
+    <script is:inline>
+      (function () {
+        var KEY  = 'ft-theme';
+        var html = document.documentElement;
+        var mq   = window.matchMedia('(prefers-color-scheme: dark)');
+
+        function apply(theme) {
+          html.classList.remove('dark', 'light');
+          html.classList.add(theme);
+        }
+
+        // ── Initial: stored pref wins; fallback to OS
+        try {
+          var stored = localStorage.getItem(KEY);
+          apply(stored !== null ? stored : (mq.matches ? 'dark' : 'light'));
+        } catch (_) {
+          apply(mq.matches ? 'dark' : 'light');
+        }
+
+        // ── Audit fix: Live OS preference sync
+        // Only fires when no manual preference is stored.
+        // If the user chose manually, we respect that choice.
+        mq.addEventListener('change', function (e) {
+          try {
+            if (localStorage.getItem(KEY) === null) {
+              apply(e.matches ? 'dark' : 'light');
+            }
+          } catch (_) {
+            apply(e.matches ? 'dark' : 'light');
+          }
+        });
+      })();
+    </script>
+
+    <!-- GSAP — defer keeps render non-blocking -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <!-- Lenis smooth scroll -->
+    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+
+    <slot name="head" />
+  </head>
+
+  <body class:list={['bg-surface-bg text-primary antialiased relative', className]}>
+
+    <a
+      href="#main-content"
+      class="
+        sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4
+        focus:z-skip focus:px-4 focus:py-2 focus:rounded-md
+        focus:bg-brand-primary focus:text-neutral-900
+        focus:font-semibold focus:text-sm focus:shadow-glow
+      "
+    >
+      Ir al contenido principal
+    </a>
+
+    <slot name="navbar" />
+
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+
+    <slot name="footer" />
+
+    <script>
+      /**
+       * Motion system init — GSAP + ScrollTrigger + Lenis
+       *
+       * Audit fixes:
+       *  [3a] initMotion() cleans up old ScrollTrigger instances before re-scanning.
+       *       Prevents duplicate triggers after Astro View Transitions navigation.
+       *  [3b] Re-runs on 'astro:page-load' event for View Transitions compatibility.
+       *  [3c] Lenis is created once (idempotent guard on window.lenis).
+       *  [6]  Typed strictly via src/types/gsap.d.ts — no any/unknown casts.
+       */
+
+      // Track whether libs are ready (prevents double-init on slow connections)
+      let libsReady = false;
+
+      function waitForLibs(callback: () => void, attempts = 0): void {
+        if (
+          typeof window.gsap !== 'undefined' &&
+          typeof window.ScrollTrigger !== 'undefined' &&
+          typeof window.Lenis !== 'undefined'
+        ) {
+          callback();
+        } else if (attempts < 60) {
+          setTimeout(() => waitForLibs(callback, attempts + 1), 100);
+        } else {
+          console.warn('[FinTech] Motion libs failed to load after 6s — check CDN.');
+        }
+      }
+
+      function initMotion(): void {
+        const { gsap, ScrollTrigger, Lenis } = window;
+
+        // Register plugin (GSAP handles duplicate registerPlugin calls gracefully)
+        gsap.registerPlugin(ScrollTrigger);
+
+        // ── Audit fix [3a]: Kill all existing ScrollTrigger instances.
+        // This is the critical step for View Transitions:
+        // without this, navigating back/forward accumulates duplicate triggers.
+        ScrollTrigger.getAll().forEach(t => t.kill(true));
+
+        // ── Lenis: init once, reuse across navigations
+        if (!window.lenis) {
+          const lenis = new Lenis({
+            duration:        1.2,
+            easing:          (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothTouch:     false,
+            touchMultiplier: 2,
+          });
+
+          lenis.on('scroll', () => ScrollTrigger.update());
+          gsap.ticker.add((time: number) => lenis.raf(time * 1000));
+          gsap.ticker.lagSmoothing(0);
+
+          window.lenis = lenis;
+        }
+
+        const lenis = window.lenis;
+
+        // ── Smooth anchor navigation
+        // Re-query each time (new anchors may have appeared after navigation)
+        document.body.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
+          // Remove old listener by replacing node (avoids listener leak across navigations)
+          const fresh = anchor.cloneNode(true) as HTMLAnchorElement;
+          anchor.parentNode?.replaceChild(fresh, anchor);
+          fresh.addEventListener('click', (e: MouseEvent) => {
+            const href = fresh.getAttribute('href');
+            if (href?.startsWith('#')) {
+              e.preventDefault();
+              const target = document.querySelector(href);
+              if (target) lenis.scrollTo(target, { offset: -80, duration: 1.4 });
+            }
+          });
+        });
+
+        // ── Skip all scroll animations if reduced motion is preferred
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        // ── Reveal animations
+        // Scope to document.body (not document) — avoids scanning <head>
+        document.body.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+          const delay     = parseFloat(el.dataset.revealDelay ?? '0');
+          const direction = el.dataset.reveal ?? 'up';
+
+          const fromVars: Record<string, number> = { opacity: 0 };
+          if (direction === 'up')    fromVars['y'] = 40;
+          if (direction === 'down')  fromVars['y'] = -40;
+          if (direction === 'left')  fromVars['x'] = 40;
+          if (direction === 'right') fromVars['x'] = -40;
+
+          gsap.from(el, {
+            ...fromVars,
+            duration: 0.8,
+            delay,
+            ease: 'power3.out',
+            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+          });
+        });
+
+        // ── Stagger groups
+        document.body.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
+          const children = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal-item]'));
+          if (!children.length) return;
+
+          gsap.from(children, {
+            opacity: 0,
+            y:       32,
+            duration: 0.7,
+            stagger:  0.1,
+            ease:    'power3.out',
+            scrollTrigger: { trigger: group, start: 'top 85%', once: true },
+          });
+        });
+      }
+
+      // ── Initial load
+      waitForLibs(() => {
+        libsReady = true;
+        initMotion();
+      });
+
+      // ── Audit fix [3b]: Astro View Transitions support
+      // astro:page-load fires after each new page's DOM is ready
+      document.addEventListener('astro:page-load', () => {
+        if (libsReady) initMotion();
+      });
+
+      // Pause Lenis during page swap to prevent scroll conflicts
+      document.addEventListener('astro:before-swap', () => window.lenis?.stop());
+      document.addEventListener('astro:after-swap',  () => window.lenis?.start());
+    </script>
+  </body>
 </html>
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
+<style is:global>
+  html.lenis                               { height: auto; }
+  .lenis.lenis-smooth                      { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+  .lenis.lenis-stopped                     { overflow: hidden; }
+  .lenis.lenis-scrolling iframe            { pointer-events: none; }
 </style>

@@ -1,0 +1,198 @@
+---
+/**
+ * TrustTicker.astro — Organism
+ * Infinite auto-scrolling logo strip.
+ * Logos are greyscale by default; they reveal color on hover.
+ * Powered by GSAP (no CSS animation) for butter-smooth infinite loop.
+ *
+ * Accepts `logos` as an array of { name, svg } OR { name, src }.
+ * If neither exists it renders placeholder blocks.
+ */
+
+interface Logo {
+  name:  string;
+  /** Inline SVG string (preferred for quality) */
+  svg?:  string;
+  /** Image URL fallback */
+  src?:  string;
+  /** Alt/title (defaults to name) */
+  alt?:  string;
+}
+
+interface Props {
+  /** Array of client/partner logos to display */
+  logos?:     Logo[];
+  /** Label above the ticker */
+  eyebrow?:   string;
+  /** Speed in px per second (default 40) */
+  speed?:     number;
+  /** Pause on hover */
+  pauseOnHover?: boolean;
+  class?:     string;
+}
+
+const {
+  logos       = [],
+  eyebrow     = 'Empresas que confían en nosotros',
+  speed       = 45,
+  pauseOnHover = true,
+  class: className,
+} = Astro.props;
+
+// If no logos provided, render 8 placeholder blocks
+const items: Logo[] = logos.length > 0 ? logos : Array.from({ length: 8 }, (_, i) => ({
+  name: `Cliente ${i + 1}`,
+}));
+---
+
+<div class:list={['trust-ticker-root w-full overflow-hidden', className]}>
+  <!-- Eyebrow label -->
+  {eyebrow && (
+    <p class="text-center text-muted text-xs font-mono tracking-widest uppercase mb-8">
+      {eyebrow}
+    </p>
+  )}
+
+  <!-- Fade masks on edges -->
+  <div class="relative">
+    <div
+      aria-hidden="true"
+      class="absolute left-0 top-0 bottom-0 w-24 z-raised pointer-events-none"
+      style="background: linear-gradient(90deg, var(--color-surface-bg, #0A0C18), transparent);"
+    />
+    <div
+      aria-hidden="true"
+      class="absolute right-0 top-0 bottom-0 w-24 z-raised pointer-events-none"
+      style="background: linear-gradient(-90deg, var(--color-surface-bg, #0A0C18), transparent);"
+    />
+
+    <!-- Track: items duplicated for seamless loop -->
+    <div
+      id="ticker-track"
+      class="flex items-center gap-12 will-change-transform"
+      style="width: max-content;"
+      aria-label={eyebrow}
+      data-speed={speed}
+      data-pause-on-hover={pauseOnHover ? 'true' : 'false'}
+    >
+      <!-- Original set -->
+      {items.map((logo) => (
+        <div
+          class="ticker-logo-item flex items-center justify-center shrink-0 px-4 group"
+          style="height: 48px; min-width: 100px;"
+          title={logo.alt ?? logo.name}
+        >
+          {logo.svg ? (
+            <span
+              class="ticker-logo transition-all duration-normal ease-standard grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100"
+              style="max-height: 36px; display: flex; align-items: center;"
+              set:html={logo.svg}
+            />
+          ) : logo.src ? (
+            <img
+              src={logo.src}
+              alt={logo.alt ?? logo.name}
+              class="ticker-logo max-h-9 w-auto object-contain transition-all duration-normal ease-standard grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <!-- Placeholder skeleton -->
+            <div
+              class="ticker-logo rounded-lg transition-all duration-normal ease-standard opacity-25 group-hover:opacity-60"
+              style="width: 100px; height: 32px; background: rgba(255,255,255,0.08);"
+              aria-label={logo.name}
+            />
+          )}
+        </div>
+      ))}
+
+      <!-- Duplicate set for seamless repeat -->
+      {items.map((logo) => (
+        <div
+          class="ticker-logo-item flex items-center justify-center shrink-0 px-4 group"
+          style="height: 48px; min-width: 100px;"
+          aria-hidden="true"
+        >
+          {logo.svg ? (
+            <span
+              class="ticker-logo transition-all duration-normal ease-standard grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100"
+              style="max-height: 36px; display: flex; align-items: center;"
+              set:html={logo.svg}
+            />
+          ) : logo.src ? (
+            <img
+              src={logo.src}
+              alt=""
+              class="ticker-logo max-h-9 w-auto object-contain transition-all duration-normal ease-standard grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : (
+            <div
+              class="ticker-logo rounded-lg transition-all duration-normal ease-standard opacity-25 group-hover:opacity-60"
+              style="width: 100px; height: 32px; background: rgba(255,255,255,0.08);"
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  /**
+   * TrustTicker GSAP infinite scroll.
+   * Uses gsap.to with modifiers for true infinite loop without jump.
+   */
+  document.querySelectorAll<HTMLElement>('#ticker-track').forEach((track) => {
+    const tryInit = () => {
+      if (typeof window.gsap === 'undefined') { setTimeout(tryInit, 100); return; }
+
+      const { gsap } = window;
+
+      const speed        = parseFloat(track.dataset.speed ?? '45');
+      const pauseOnHover = track.dataset.pauseOnHover === 'true';
+
+      // Measure exactly half the track (the original set)
+      const allItems     = Array.from(track.querySelectorAll<HTMLElement>('.ticker-logo-item'));
+      const halfCount    = allItems.length / 2;
+      const halfWidth    = allItems.slice(0, halfCount).reduce((sum, el) => {
+        return sum + el.getBoundingClientRect().width;
+      }, 0);
+
+      if (halfWidth === 0) {
+        // DOM not ready, retry
+        setTimeout(tryInit, 100);
+        return;
+      }
+
+      // Duration based on width / speed (px per second)
+      const duration = halfWidth / speed;
+
+      const tween = gsap.to(track, {
+        x:        -halfWidth,
+        duration,
+        ease:     'none',
+        repeat:   -1,
+        modifiers: {
+          x: gsap.utils.unitize((x: number) => x % (-halfWidth)),
+        },
+      });
+
+      // Pause on hover
+      if (pauseOnHover) {
+        const root = track.closest('.trust-ticker-root') as HTMLElement | null;
+        root?.addEventListener('mouseenter', () => tween.pause());
+        root?.addEventListener('mouseleave', () => tween.resume());
+      }
+
+      // Respect reduced motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        tween.pause();
+      }
+    };
+
+    tryInit();
+  });
+</script>

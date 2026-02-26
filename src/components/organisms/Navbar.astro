@@ -1,0 +1,490 @@
+---
+/**
+ * Navbar.astro — Organism
+ *
+ * Audit fixes applied:
+ *  [5] Focus trap uses isFocusable() to filter hidden/disabled elements,
+ *      preventing bugs when links are conditionally rendered.
+ *  [5] Drawer uses inert attribute on background content when open —
+ *      the most reliable a11y approach per ARIA spec.
+ *  [6] z-index values reference Tailwind tokens (z-navbar, z-drawer, z-overlay, z-skip)
+ *      instead of arbitrary z-[100] values.
+ *  [6] GSAP types from src/types/gsap.d.ts — no unknown casts.
+ */
+
+interface NavLink {
+  label:     string;
+  href:      string;
+  external?: boolean;
+}
+
+interface NavDropdown {
+  label: string;
+  items: NavLink[];
+}
+
+interface Props {
+  links?:       (NavLink | NavDropdown)[];
+  cta?:         { label: string; href: string };
+  logoText?:    string;
+  logoHref?:    string;
+  currentPath?: string;
+}
+
+function isDropdown(item: NavLink | NavDropdown): item is NavDropdown {
+  return 'items' in item;
+}
+
+const {
+  links       = [],
+  cta         = { label: 'Comenzar', href: '/contacto' },
+  logoText    = 'FinTech',
+  logoHref    = '/',
+  currentPath = '/',
+} = Astro.props;
+---
+
+<!-- z-navbar = 500 from token scale -->
+<header id="site-header" role="banner" class="fixed top-0 left-0 right-0 z-navbar transition-all duration-normal ease-standard">
+  <nav
+    id="main-nav"
+    aria-label="Navegación principal"
+    class="mx-4 mt-4 rounded-xl border border-white/5 transition-all duration-slow ease-standard bg-transparent"
+  >
+    <div class="container-site">
+      <div class="flex items-center justify-between h-16 gap-8">
+
+        <!-- Logo -->
+        <a
+          href={logoHref}
+          aria-label={`${logoText} — Ir al inicio`}
+          class="flex items-center gap-2.5 shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-transparent focus-visible:rounded-md"
+        >
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="28" height="28" rx="6" fill="url(#logo-grad)"/>
+            <path d="M8 14h4m0 0V9h8v10H12v-5z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="logo-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0CF2D0"/>
+                <stop offset="1" stop-color="#1B6FFF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="font-display font-bold text-lg text-primary tracking-tight">{logoText}</span>
+        </a>
+
+        <!-- Desktop links -->
+        <ul role="list" class="hidden lg:flex items-center gap-1 flex-1 justify-center">
+          {links.map((item) => (
+            <li class="relative" data-nav-item>
+              {isDropdown(item) ? (
+                <div data-dropdown>
+                  <button
+                    data-dropdown-trigger
+                    aria-haspopup="menu"
+                    aria-expanded="false"
+                    class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-secondary hover:text-primary hover:bg-surface-card/50 transition-colors duration-fast ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-lg"
+                  >
+                    {item.label}
+                    <svg aria-hidden="true" data-chevron class="w-3.5 h-3.5 opacity-60 transition-transform duration-fast" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  <!-- z-dropdown = 200 from token scale -->
+                  <div
+                    data-dropdown-menu
+                    role="menu"
+                    class="absolute top-full left-1/2 -translate-x-1/2 mt-2 min-w-[200px] rounded-xl p-2 glass border border-surface shadow-lg opacity-0 pointer-events-none translate-y-2 transition-all duration-fast ease-standard z-dropdown"
+                  >
+                    {item.items.map((sub) => (
+                      <a
+                        href={sub.href}
+                        role="menuitem"
+                        target={sub.external ? '_blank' : undefined}
+                        rel={sub.external ? 'noopener noreferrer' : undefined}
+                        aria-current={currentPath === sub.href ? 'page' : undefined}
+                        class="block px-4 py-2.5 rounded-lg text-sm text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-lg"
+                      >
+                        {sub.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <a
+                  href={(item as NavLink).href}
+                  target={(item as NavLink).external ? '_blank' : undefined}
+                  rel={(item as NavLink).external ? 'noopener noreferrer' : undefined}
+                  aria-current={currentPath === (item as NavLink).href ? 'page' : undefined}
+                  class:list={[
+                    'block px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-fast ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-lg',
+                    currentPath === (item as NavLink).href
+                      ? 'text-brand-primary bg-brand-primary/8'
+                      : 'text-secondary hover:text-primary hover:bg-surface-card/50',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <!-- Right controls -->
+        <div class="flex items-center gap-3 shrink-0">
+
+          <!-- Theme toggle -->
+          <button
+            id="theme-toggle"
+            aria-label="Alternar modo oscuro/claro"
+            aria-pressed="false"
+            class="relative w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-card transition-all duration-fast ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:rounded-lg"
+          >
+            <svg data-icon-sun class="w-[18px] h-[18px] absolute transition-all duration-fast" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg data-icon-moon class="w-[18px] h-[18px] absolute transition-all duration-fast" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </button>
+
+          {cta && (
+            <a
+              href={cta.href}
+              class="hidden lg:inline-flex items-center justify-center h-9 px-5 rounded-lg bg-brand-primary text-neutral-900 text-sm font-bold tracking-wide hover:brightness-110 hover:shadow-glow active:scale-[0.98] transition-all duration-fast ease-standard focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+            >
+              {cta.label}
+            </a>
+          )}
+
+          <!-- Mobile menu button -->
+          <button
+            id="mobile-menu-btn"
+            aria-label="Abrir menú de navegación"
+            aria-expanded="false"
+            aria-controls="mobile-drawer"
+            class="lg:hidden flex flex-col justify-center items-center w-9 h-9 rounded-lg gap-[5px] hover:bg-surface-card transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          >
+            <span data-bar class="block w-5 h-[1.5px] bg-current rounded-full transition-all duration-fast origin-center" />
+            <span data-bar class="block w-5 h-[1.5px] bg-current rounded-full transition-all duration-fast" />
+            <span data-bar class="block w-5 h-[1.5px] bg-current rounded-full transition-all duration-fast origin-center" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!--
+    Mobile Drawer
+    z-drawer (600) > z-navbar (500) ensures it covers the navbar.
+    The `inert` attribute on <main> and <footer> is toggled via JS,
+    which is more reliable than manual focus trap for a11y.
+  -->
+  <div
+    id="mobile-drawer"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Menú de navegación"
+    hidden
+    class="lg:hidden fixed inset-0 top-0 z-drawer"
+  >
+    <!-- Backdrop — z-overlay (400) -->
+    <div
+      id="drawer-backdrop"
+      aria-hidden="true"
+      class="absolute inset-0 bg-neutral-1000/70 backdrop-blur-sm opacity-0 transition-opacity duration-normal"
+    />
+
+    <!-- Panel -->
+    <div
+      id="drawer-panel"
+      class="absolute top-0 right-0 h-full w-[min(360px,90vw)] bg-surface-overlay border-l border-surface shadow-lg translate-x-full transition-transform duration-normal ease-decelerate flex flex-col overflow-y-auto no-scrollbar"
+    >
+      <div class="flex items-center justify-between px-6 py-5 border-b border-surface shrink-0">
+        <span class="font-display font-bold text-base text-primary">{logoText}</span>
+        <button
+          id="mobile-close-btn"
+          aria-label="Cerrar menú"
+          class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+        >
+          <svg class="w-[18px] h-[18px]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav aria-label="Navegación móvil" class="flex-1 px-4 py-6">
+        <ul role="list" class="space-y-1">
+          {links.map((item) => (
+            <li>
+              {isDropdown(item) ? (
+                <div>
+                  <p class="px-4 pt-4 pb-2 text-xs font-mono tracking-widest text-muted uppercase">{item.label}</p>
+                  {item.items.map((sub) => (
+                    <a
+                      href={sub.href}
+                      aria-current={currentPath === sub.href ? 'page' : undefined}
+                      class:list={[
+                        'block px-4 py-2.5 rounded-lg text-sm transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                        currentPath === sub.href ? 'text-brand-primary bg-brand-primary/8' : 'text-secondary hover:text-primary hover:bg-surface-card',
+                      ]}
+                    >
+                      {sub.label}
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <a
+                  href={(item as NavLink).href}
+                  aria-current={currentPath === (item as NavLink).href ? 'page' : undefined}
+                  class:list={[
+                    'block px-4 py-3 rounded-lg text-base font-medium transition-colors duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary',
+                    currentPath === (item as NavLink).href ? 'text-brand-primary bg-brand-primary/8' : 'text-secondary hover:text-primary hover:bg-surface-card',
+                  ]}
+                >
+                  {(item as NavLink).label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {cta && (
+        <div class="px-6 py-6 border-t border-surface shrink-0">
+          <a
+            href={cta.href}
+            class="flex items-center justify-center w-full h-12 rounded-xl bg-brand-primary text-neutral-900 font-bold text-sm tracking-wide hover:brightness-110 transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          >
+            {cta.label}
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+</header>
+
+<script>
+  /**
+   * Navbar script
+   *
+   * Audit fix [5] — Robust focus trap:
+   *   Uses `inert` attribute on background content (<main>, <footer>)
+   *   instead of manually intercepting Tab keydown.
+   *   `inert` makes ALL content non-focusable + non-interactive at the
+   *   browser level, which is more reliable than JS selectors.
+   *   Fallback: manual Tab trap for browsers without `inert` support.
+   *
+   * Audit fix [6] — GSAP types from window (typed via gsap.d.ts).
+   */
+
+  const STORAGE_KEY = 'ft-theme';
+
+  // ── isFocusable — filters out hidden/disabled elements for manual trap fallback
+  function isFocusable(el: Element): boolean {
+    if (!(el instanceof HTMLElement)) return false;
+    if (el.hasAttribute('disabled'))  return false;
+    if (el.getAttribute('tabindex') === '-1') return false;
+    // Check element is visible (not hidden via display:none or visibility:hidden)
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }
+
+  const FOCUSABLE_SELECTORS = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(', ');
+
+  document.addEventListener('DOMContentLoaded', () => {
+
+    // ── Theme Toggle ───────────────────────────────────────────────────────────
+    const html     = document.documentElement;
+    const themeBtn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+    const iconSun  = document.querySelector('[data-icon-sun]')  as HTMLElement | null;
+    const iconMoon = document.querySelector('[data-icon-moon]') as HTMLElement | null;
+
+    function applyTheme(theme: 'dark' | 'light', save = true): void {
+      html.classList.toggle('dark',  theme === 'dark');
+      html.classList.toggle('light', theme === 'light');
+      if (save) {
+        try { localStorage.setItem(STORAGE_KEY, theme); } catch (_) { /* noop */ }
+      }
+      themeBtn?.setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+
+      if (!iconSun || !iconMoon) return;
+      if (theme === 'dark') {
+        iconSun.style.cssText  = 'opacity:0; transform:rotate(90deg) scale(0.5)';
+        iconMoon.style.cssText = 'opacity:1; transform:rotate(0deg) scale(1)';
+      } else {
+        iconSun.style.cssText  = 'opacity:1; transform:rotate(0deg) scale(1)';
+        iconMoon.style.cssText = 'opacity:0; transform:rotate(-90deg) scale(0.5)';
+      }
+    }
+
+    // Sync icon to current state (set by FOUC script)
+    const current: 'dark' | 'light' = html.classList.contains('light') ? 'light' : 'dark';
+    applyTheme(current, false); // Don't re-save on init
+
+    themeBtn?.addEventListener('click', () => {
+      const next: 'dark' | 'light' = html.classList.contains('dark') ? 'light' : 'dark';
+      applyTheme(next);
+    });
+
+    // ── Navbar glassmorphism on scroll ─────────────────────────────────────────
+    const nav = document.getElementById('main-nav');
+    const onScroll = (): void => {
+      const scrolled = window.scrollY > 20;
+      nav?.classList.toggle('glass',     scrolled);
+      nav?.classList.toggle('shadow-md', scrolled);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // ── GSAP entrance animation ────────────────────────────────────────────────
+    const tryGsapEntrance = (): void => {
+      if (typeof window.gsap === 'undefined') { setTimeout(tryGsapEntrance, 100); return; }
+      window.gsap.from('#site-header', {
+        y: -80, opacity: 0, duration: 0.8, delay: 0.1, ease: 'power3.out',
+      });
+    };
+    tryGsapEntrance();
+
+    // ── Dropdown (desktop) ─────────────────────────────────────────────────────
+    document.querySelectorAll('[data-dropdown]').forEach((dd) => {
+      const trigger = dd.querySelector<HTMLButtonElement>('[data-dropdown-trigger]')!;
+      const menu    = dd.querySelector<HTMLElement>('[data-dropdown-menu]')!;
+      const chevron = dd.querySelector<HTMLElement>('[data-chevron]');
+      let open = false;
+
+      const openMenu = (): void => {
+        open = true;
+        trigger.setAttribute('aria-expanded', 'true');
+        menu.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+        menu.classList.add('opacity-100', 'translate-y-0');
+        chevron && (chevron.style.transform = 'rotate(180deg)');
+      };
+
+      const closeMenu = (): void => {
+        open = false;
+        trigger.setAttribute('aria-expanded', 'false');
+        menu.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+        menu.classList.remove('opacity-100', 'translate-y-0');
+        chevron && (chevron.style.transform = '');
+      };
+
+      trigger.addEventListener('click', () => (open ? closeMenu() : openMenu()));
+      document.addEventListener('click', (e) => { if (!dd.contains(e.target as Node)) closeMenu(); });
+      dd.addEventListener('keydown', (e) => {
+        if ((e as KeyboardEvent).key === 'Escape') { closeMenu(); trigger.focus(); }
+      });
+    });
+
+    // ── Mobile Drawer ──────────────────────────────────────────────────────────
+    const menuBtn  = document.getElementById('mobile-menu-btn')  as HTMLButtonElement;
+    const closeBtn = document.getElementById('mobile-close-btn') as HTMLButtonElement;
+    const drawer   = document.getElementById('mobile-drawer')    as HTMLElement;
+    const backdrop = document.getElementById('drawer-backdrop')  as HTMLElement;
+    const panel    = document.getElementById('drawer-panel')     as HTMLElement;
+    const bars     = menuBtn?.querySelectorAll<HTMLElement>('[data-bar]');
+
+    // Inertable siblings: everything except the header that contains the drawer
+    const inertTargets = (): NodeListOf<Element> =>
+      document.querySelectorAll('main, footer, [data-inertable]');
+
+    let drawerOpen = false;
+
+    function openDrawer(): void {
+      drawerOpen = true;
+      drawer.hidden = false;
+      menuBtn.setAttribute('aria-expanded', 'true');
+      menuBtn.setAttribute('aria-label', 'Cerrar menú');
+
+      if (bars) {
+        (bars[0] as HTMLElement).style.transform = 'rotate(45deg) translateY(6.5px)';
+        (bars[1] as HTMLElement).style.opacity   = '0';
+        (bars[2] as HTMLElement).style.transform = 'rotate(-45deg) translateY(-6.5px)';
+      }
+
+      document.body.style.overflow = 'hidden';
+
+      // Audit fix [5a]: `inert` — most reliable focus trap strategy
+      // Marks all background content as inert (non-focusable + non-interactive)
+      inertTargets().forEach(el => el.setAttribute('inert', ''));
+
+      requestAnimationFrame(() => {
+        backdrop.style.opacity = '1';
+        panel.style.transform  = 'translateX(0)';
+      });
+
+      setTimeout(() => closeBtn?.focus(), 120);
+    }
+
+    function closeDrawer(): void {
+      drawerOpen = false;
+      menuBtn.setAttribute('aria-expanded', 'false');
+      menuBtn.setAttribute('aria-label', 'Abrir menú de navegación');
+
+      if (bars) {
+        (bars[0] as HTMLElement).style.transform = '';
+        (bars[1] as HTMLElement).style.opacity   = '1';
+        (bars[2] as HTMLElement).style.transform = '';
+      }
+
+      document.body.style.overflow = '';
+
+      // Remove inert from background content
+      inertTargets().forEach(el => el.removeAttribute('inert'));
+
+      backdrop.style.opacity = '0';
+      panel.style.transform  = 'translateX(100%)';
+
+      setTimeout(() => { drawer.hidden = true; }, 360);
+      menuBtn.focus();
+    }
+
+    menuBtn?.addEventListener('click',  () => (drawerOpen ? closeDrawer() : openDrawer()));
+    closeBtn?.addEventListener('click', closeDrawer);
+    backdrop?.addEventListener('click', closeDrawer);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawerOpen) closeDrawer();
+    });
+
+    // ── Audit fix [5b]: Manual Tab trap FALLBACK
+    // For browsers without `inert` support (< 1% of users, mainly old Safari).
+    // Uses isFocusable() to filter out invisible/disabled elements,
+    // fixing the bug where hidden items could receive focus.
+    const supportsInert = 'inert' in HTMLElement.prototype;
+
+    if (!supportsInert) {
+      drawer.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+
+        const focusable = Array.from(
+          drawer.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTORS)
+        ).filter(isFocusable);
+
+        if (!focusable.length) { e.preventDefault(); return; }
+
+        const first = focusable[0]!;
+        const last  = focusable[focusable.length - 1]!;
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    }
+  });
+</script>

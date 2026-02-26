@@ -1,0 +1,230 @@
+---
+/**
+ * Footer.astro — Organism
+ * Extended footer with sitemap, contact info, social links and legal.
+ */
+
+import Icon from '@atoms/Icon.astro';
+
+interface FooterLink {
+  label:     string;
+  href:      string;
+  external?: boolean;
+  badge?:    string;
+}
+
+interface FooterColumn {
+  heading: string;
+  links:   FooterLink[];
+}
+
+interface Props {
+  columns?:    FooterColumn[];
+  brandName?:  string;
+  brandTagline?: string;
+  contact?:    { email?: string; phone?: string; address?: string };
+  social?:     { instagram?: string; linkedin?: string; twitter?: string; whatsapp?: string };
+  legal?:      { copyright?: string; links?: FooterLink[] };
+  accent?:     string;
+  class?:      string;
+}
+
+const {
+  columns = [],
+  brandName    = 'FinTech Platform',
+  brandTagline = 'Infraestructura digital para tu negocio',
+  contact      = {},
+  social       = {},
+  legal        = {},
+  accent       = '#0CF2D0',
+  class: className,
+} = Astro.props;
+
+const year = new Date().getFullYear();
+const copyright = legal.copyright ?? `© ${year} ${brandName}. Todos los derechos reservados.`;
+---
+
+<footer
+  class:list={['bg-surface-overlay border-t border-surface relative overflow-hidden', className]}
+  aria-label="Pie de página"
+>
+  <!-- Subtle top glow -->
+  <div
+    aria-hidden="true"
+    class="absolute top-0 left-0 right-0 h-px"
+    style={`background: linear-gradient(90deg, transparent 0%, ${accent}40 50%, transparent 100%);`}
+  />
+
+  <!-- Radial bg decoration -->
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 pointer-events-none"
+    style={`background: radial-gradient(ellipse 50% 40% at 50% 0%, ${accent}04 0%, transparent 70%);`}
+  />
+
+  <div class="container-site relative z-base">
+
+    <!-- ── Top: Brand + Columns ── -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 pt-16 pb-12 border-b border-surface">
+
+      <!-- Brand column (2 cols on lg) -->
+      <div class="lg:col-span-2 space-y-5">
+        <!-- Logo -->
+        <div class="flex items-center gap-2.5">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <rect width="28" height="28" rx="6" fill="url(#footer-logo-grad)"/>
+            <path d="M8 14h4m0 0V9h8v10H12v-5z" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="footer-logo-grad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0CF2D0"/><stop offset="1" stop-color="#1B6FFF"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="font-display font-bold text-lg text-primary tracking-tight">{brandName}</span>
+        </div>
+
+        <p class="text-secondary text-sm leading-relaxed max-w-xs">
+          {brandTagline}
+        </p>
+
+        <!-- Contact info -->
+        <ul class="space-y-2.5" role="list">
+          {contact.email && (
+            <li>
+              <a
+                href={`mailto:${contact.email}`}
+                class="flex items-center gap-2.5 text-sm text-secondary hover:text-primary transition-colors duration-fast group"
+              >
+                <Icon name="mail" size={14} class="opacity-50 group-hover:opacity-100 shrink-0" />
+                {contact.email}
+              </a>
+            </li>
+          )}
+          {contact.phone && (
+            <li>
+              <a
+                href={`tel:${contact.phone.replace(/\s/g,'')}`}
+                class="flex items-center gap-2.5 text-sm text-secondary hover:text-primary transition-colors duration-fast group"
+              >
+                <Icon name="phone" size={14} class="opacity-50 group-hover:opacity-100 shrink-0" />
+                {contact.phone}
+              </a>
+            </li>
+          )}
+          {contact.address && (
+            <li class="flex items-start gap-2.5 text-sm text-secondary">
+              <Icon name="map-pin" size={14} class="opacity-50 shrink-0 mt-0.5" />
+              <span>{contact.address}</span>
+            </li>
+          )}
+        </ul>
+
+        <!-- Social links -->
+        {Object.keys(social).some(k => social[k as keyof typeof social]) && (
+          <div class="flex items-center gap-2" role="list" aria-label="Redes sociales">
+            {social.instagram && (
+              <a
+                href={social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary border border-surface hover:text-primary hover:border-neutral-400 transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                <Icon name="instagram" size={16} />
+              </a>
+            )}
+            {social.linkedin && (
+              <a
+                href={social.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary border border-surface hover:text-primary hover:border-neutral-400 transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                <Icon name="linkedin" size={16} />
+              </a>
+            )}
+            {social.twitter && (
+              <a
+                href={social.twitter}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Twitter / X"
+                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary border border-surface hover:text-primary hover:border-neutral-400 transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                <Icon name="twitter" size={16} />
+              </a>
+            )}
+            {social.whatsapp && (
+              <a
+                href={social.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary border border-surface hover:text-primary hover:border-neutral-400 transition-all duration-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              >
+                <Icon name="whatsapp" size={16} />
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <!-- Nav columns -->
+      {columns.map((col) => (
+        <div>
+          <h3 class="font-mono text-xs tracking-widest uppercase text-muted mb-4">
+            {col.heading}
+          </h3>
+          <ul class="space-y-2.5" role="list">
+            {col.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target={link.external ? '_blank' : undefined}
+                  rel={link.external ? 'noopener noreferrer' : undefined}
+                  class="flex items-center gap-2 text-sm text-secondary hover:text-primary transition-colors duration-fast group"
+                >
+                  {link.label}
+                  {link.badge && (
+                    <span
+                      class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold"
+                      style={`background: ${accent}18; color: ${accent};`}
+                    >
+                      {link.badge}
+                    </span>
+                  )}
+                  {link.external && (
+                    <Icon name="arrow-up-right" size={12} class="opacity-0 group-hover:opacity-50 transition-opacity" />
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    <!-- ── Bottom: Legal bar ── -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-6">
+      <p class="text-muted text-xs font-mono">{copyright}</p>
+
+      {legal.links && legal.links.length > 0 && (
+        <nav aria-label="Links legales">
+          <ul class="flex items-center gap-4 flex-wrap justify-center" role="list">
+            {legal.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-muted text-xs hover:text-secondary transition-colors duration-fast"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  </div>
+</footer>
