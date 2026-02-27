@@ -23,7 +23,7 @@
 import Layout         from '@layouts/Layout.astro';
 import Navbar         from '@organisms/Navbar.astro';
 import Footer         from '@organisms/Footer.astro';
-import Button         from '@atoms/Button.astro';
+
 import Icon           from '@atoms/Icon.astro';
 import Accordion      from '@molecules/Accordion.astro';
 import TestimonialCard from '@molecules/TestimonialCard.astro';
@@ -547,7 +547,7 @@ const footerColumns = [
 
         <!-- Right: features grid -->
         <div data-reveal-group class="grid sm:grid-cols-2 gap-4">
-          {valueProps.map((vp, i) => (
+          {valueProps.map((vp) => (
             <div
               data-reveal-item
               class="group relative rounded-xl p-6 border border-surface bg-surface-card overflow-hidden transition-all duration-normal hover:border-transparent"
@@ -693,7 +693,7 @@ const footerColumns = [
     <!-- Carousel track — GSAP animates this -->
     <div id="portfolio-carousel" class="relative" aria-label="Portfolio de trabajos">
       <div id="portfolio-track" class="flex gap-5 will-change-transform" style="width: max-content; padding: 0 max(24px, calc((100vw - 1320px)/2 + 64px));">
-        {portfolioItems.map((item, i) => (
+        {portfolioItems.map((item) => (
           <article
             class="portfolio-card relative rounded-2xl overflow-hidden flex-shrink-0 cursor-pointer group"
             style={`width: 320px; height: 420px; background: ${item.bgColor}; border: 1px solid ${item.color}20;`}
@@ -754,7 +754,7 @@ const footerColumns = [
         ))}
 
         <!-- Duplicate cards for infinite illusion -->
-        {portfolioItems.map((item, i) => (
+        {portfolioItems.map((item) => (
           <article
             class="portfolio-card relative rounded-2xl overflow-hidden flex-shrink-0"
             style={`width: 320px; height: 420px; background: ${item.bgColor}; border: 1px solid ${item.color}20;`}

@@ -8,25 +8,25 @@
 
 interface Props {
   /** Unique identifier (used for aria-labelledby) */
-  id:           string;
+  id: string;
   /** Card title */
-  title:        string;
+  title: string;
   /** Short description (max ~120 chars recommended) */
-  description:  string;
+  description: string;
   /** SVG string or emoji for the icon */
-  icon:         string;
+  icon: string;
   /** Tag/category label */
-  tag?:         string;
+  tag?: string;
   /** Optional stat to highlight */
-  stat?:        { value: string; label: string };
+  stat?: { value: string; label: string };
   /** CTA link */
-  href?:        string;
+  href?: string;
   /** CTA text */
-  ctaText?:     string;
+  ctaText?: string;
   /** Accent color override (CSS color) */
-  accent?:      string;
+  accent?: string;
   /** Additional classes */
-  class?:       string;
+  class?: string;
 }
 
 const {
@@ -36,9 +36,9 @@ const {
   icon,
   tag,
   stat,
-  href        = '#',
-  ctaText     = 'Explorar →',
-  accent      = '#0CF2D0',
+  href = "#",
+  ctaText = "Explorar →",
+  accent = "#0CF2D0",
   class: className,
 } = Astro.props;
 
@@ -49,10 +49,10 @@ const headingId = `card-title-${id}`;
   data-card
   data-accent={accent}
   class:list={[
-    'group relative rounded-xl overflow-hidden',
-    'bg-surface-card border border-surface',
-    'transition-all duration-normal ease-standard',
-    'hover:border-transparent',
+    "group relative rounded-xl overflow-hidden",
+    "bg-surface-card border border-surface",
+    "transition-all duration-normal ease-standard",
+    "hover:border-transparent",
     className,
   ]}
   aria-labelledby={headingId}
@@ -61,38 +61,39 @@ const headingId = `card-title-${id}`;
   <div
     aria-hidden="true"
     data-card-glow
-    class="
-      absolute inset-0 rounded-xl opacity-0 pointer-events-none
+    class="absolute inset-0 rounded-xl opacity-0 pointer-events-none
       transition-opacity duration-normal ease-standard
-      group-hover:opacity-100 group-focus-within:opacity-100
-    "
+      group-hover:opacity-100 group-focus-within:opacity-100"
     style={`background: linear-gradient(135deg, ${accent}18, ${accent}04); box-shadow: inset 0 0 0 1px ${accent}40, 0 0 48px ${accent}14;`}
-  />
+  >
+  </div>
 
   <!-- ── Card content -->
   <div class="relative z-10 p-8 flex flex-col h-full gap-6">
-
     <!-- Header row -->
     <header class="flex items-start justify-between gap-4">
       <!-- Icon -->
       <div
         aria-hidden="true"
-        class="
-          flex items-center justify-center w-12 h-12 rounded-lg shrink-0
+        class="flex items-center justify-center w-12 h-12 rounded-lg shrink-0
           text-xl
           transition-transform duration-normal ease-spring
-          group-hover:-translate-y-1 group-hover:scale-110
-        "
+          group-hover:-translate-y-1 group-hover:scale-110"
         style={`background: ${accent}14; border: 1px solid ${accent}28; color: ${accent};`}
         set:html={icon}
       />
 
       <!-- Tag -->
-      {tag && (
-        <span class="tag-label shrink-0 self-start" style={`color: ${accent}; background: ${accent}08; border-color: ${accent}28;`}>
-          {tag}
-        </span>
-      )}
+      {
+        tag && (
+          <span
+            class="tag-label shrink-0 self-start"
+            style={`color: ${accent}; background: ${accent}08; border-color: ${accent}28;`}
+          >
+            {tag}
+          </span>
+        )
+      }
     </header>
 
     <!-- Body -->
@@ -109,30 +110,30 @@ const headingId = `card-title-${id}`;
     </div>
 
     <!-- Stat highlight (optional) -->
-    {stat && (
-      <div class="py-4 border-t border-surface">
-        <p
-          class="font-display font-extrabold text-3xl"
-          style={`color: ${accent};`}
-        >
-          {stat.value}
-        </p>
-        <p class="text-muted text-xs mt-0.5 font-mono tracking-wide">
-          {stat.label}
-        </p>
-      </div>
-    )}
+    {
+      stat && (
+        <div class="py-4 border-t border-surface">
+          <p
+            class="font-display font-extrabold text-3xl"
+            style={`color: ${accent};`}
+          >
+            {stat.value}
+          </p>
+          <p class="text-muted text-xs mt-0.5 font-mono tracking-wide">
+            {stat.label}
+          </p>
+        </div>
+      )
+    }
 
     <!-- CTA -->
     <a
       href={href}
-      class="
-        inline-flex items-center gap-1.5
+      class="inline-flex items-center gap-1.5
         text-sm font-semibold
         transition-all duration-fast ease-standard
         hover:gap-3
-        focus-visible:outline-none focus-visible:underline
-      "
+        focus-visible:outline-none focus-visible:underline"
       style={`color: ${accent};`}
       aria-label={`${ctaText} — ${title}`}
     >
@@ -142,83 +143,87 @@ const headingId = `card-title-${id}`;
 </article>
 
 <script>
-  import gsap from 'gsap';
+  import gsap from "gsap";
 
   // ── GSAP magnetic + tilt hover effect
-  document.querySelectorAll<HTMLElement>('[data-card]').forEach((card) => {
-      let bounds: DOMRect;
-      const TILT_AMOUNT   = 6;   // degrees
-      const SHIFT_AMOUNT  = 6;   // px for content shift
-      const EASE_OUT      = 'power2.out';
-      const EASE_IN       = 'power3.in';
+  document.querySelectorAll<HTMLElement>("[data-card]").forEach((card) => {
+    let bounds: DOMRect;
+    const TILT_AMOUNT = 6; // degrees
+    const SHIFT_AMOUNT = 6; // px for content shift
+    const EASE_OUT = "power2.out";
+    const EASE_IN = "power3.in";
 
-      const inner = card.querySelector('[data-card-glow]') as HTMLElement | null;
+    const onEnter = () => {
+      bounds = card.getBoundingClientRect();
+      gsap.to(card, {
+        scale: 1.018,
+        boxShadow: `0 24px 64px rgba(0,0,0,0.5)`,
+        duration: 0.4,
+        ease: EASE_OUT,
+      });
+    };
 
-      const onEnter = () => {
-        bounds = card.getBoundingClientRect();
-        gsap.to(card, {
-          scale: 1.018,
-          boxShadow: `0 24px 64px rgba(0,0,0,0.5)`,
+    const onMove = (e: MouseEvent) => {
+      if (!bounds) return;
+      const x = ((e.clientX - bounds.left) / bounds.width - 0.5) * 2;
+      const y = ((e.clientY - bounds.top) / bounds.height - 0.5) * 2;
+
+      gsap.to(card, {
+        rotateY: x * TILT_AMOUNT,
+        rotateX: -y * TILT_AMOUNT,
+        duration: 0.4,
+        ease: EASE_OUT,
+        transformPerspective: 800,
+        transformOrigin: "center center",
+      });
+
+      const contentEl = card.querySelector(
+        ".flex.flex-col",
+      ) as HTMLElement | null;
+      if (contentEl) {
+        gsap.to(contentEl, {
+          x: x * SHIFT_AMOUNT,
+          y: y * SHIFT_AMOUNT,
           duration: 0.4,
           ease: EASE_OUT,
         });
-      };
-
-      const onMove = (e: MouseEvent) => {
-        if (!bounds) return;
-        const x = ((e.clientX - bounds.left) / bounds.width  - 0.5) * 2;
-        const y = ((e.clientY - bounds.top)  / bounds.height - 0.5) * 2;
-
-        gsap.to(card, {
-          rotateY:  x * TILT_AMOUNT,
-          rotateX: -y * TILT_AMOUNT,
-          duration: 0.4,
-          ease: EASE_OUT,
-          transformPerspective: 800,
-          transformOrigin: 'center center',
-        });
-
-        const contentEl = card.querySelector('.flex.flex-col') as HTMLElement | null;
-        if (contentEl) {
-          gsap.to(contentEl, {
-            x: x * SHIFT_AMOUNT,
-            y: y * SHIFT_AMOUNT,
-            duration: 0.4,
-            ease: EASE_OUT,
-          });
-        }
-      };
-
-      const onLeave = () => {
-        gsap.to(card, {
-          scale:    1,
-          rotateX:  0,
-          rotateY:  0,
-          boxShadow: 'none',
-          duration: 0.6,
-          ease: EASE_IN,
-        });
-        const contentEl = card.querySelector('.flex.flex-col') as HTMLElement | null;
-        if (contentEl) {
-          gsap.to(contentEl, { x: 0, y: 0, duration: 0.5, ease: EASE_IN });
-        }
-      };
-
-      // Respect reduced motion
-      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (!prefersReduced) {
-        card.addEventListener('mouseenter', onEnter);
-        card.addEventListener('mousemove',  onMove);
-        card.addEventListener('mouseleave', onLeave);
       }
+    };
 
-      // A11y P1 Fix: focus/blur on the <a> link (the real interactive element)
-      const link = card.querySelector('a') as HTMLAnchorElement | null;
-      link?.addEventListener('focus', () => {
-        gsap.to(card, { scale: 1.015, duration: 0.3, ease: EASE_OUT });
+    const onLeave = () => {
+      gsap.to(card, {
+        scale: 1,
+        rotateX: 0,
+        rotateY: 0,
+        boxShadow: "none",
+        duration: 0.6,
+        ease: EASE_IN,
       });
-      link?.addEventListener('blur', () => {
-        gsap.to(card, { scale: 1, duration: 0.3, ease: EASE_IN });
-      });
+      const contentEl = card.querySelector(
+        ".flex.flex-col",
+      ) as HTMLElement | null;
+      if (contentEl) {
+        gsap.to(contentEl, { x: 0, y: 0, duration: 0.5, ease: EASE_IN });
+      }
+    };
+
+    // Respect reduced motion
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (!prefersReduced) {
+      card.addEventListener("mouseenter", onEnter);
+      card.addEventListener("mousemove", onMove);
+      card.addEventListener("mouseleave", onLeave);
+    }
+
+    // A11y P1 Fix: focus/blur on the <a> link (the real interactive element)
+    const link = card.querySelector("a") as HTMLAnchorElement | null;
+    link?.addEventListener("focus", () => {
+      gsap.to(card, { scale: 1.015, duration: 0.3, ease: EASE_OUT });
+    });
+    link?.addEventListener("blur", () => {
+      gsap.to(card, { scale: 1, duration: 0.3, ease: EASE_IN });
+    });
   });
 </script>

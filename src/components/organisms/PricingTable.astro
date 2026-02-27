@@ -5,116 +5,119 @@
  * Supports: price display, feature list, CTA, badges, guarantee.
  */
 
-import Button from '@atoms/Button.astro';
-import Icon   from '@atoms/Icon.astro';
-
 interface PricingFeature {
-  text:       string;
-  included:   boolean;
+  text: string;
+  included: boolean;
   /** Optional tooltip / clarification */
-  note?:      string;
+  note?: string;
   /** Highlight this feature */
   highlight?: boolean;
 }
 
 interface Props {
   /** Plan name */
-  name:         string;
+  name: string;
   /** Tagline below the name */
-  tagline?:     string;
+  tagline?: string;
   /** Price display string */
-  price:        string;
+  price: string;
   /** Price period ("único", "por mes", etc.) */
-  period?:      string;
+  period?: string;
   /** Small text above price ("desde", "por", etc.) */
   pricePrefix?: string;
   /** Currency symbol */
-  currency?:    string;
+  currency?: string;
   /** Feature list */
-  features:     PricingFeature[];
+  features: PricingFeature[];
   /** Primary CTA */
-  cta:          { label: string; href: string };
+  cta: { label: string; href: string };
   /** Secondary CTA */
-  ctaSecondary?:{ label: string; href: string };
+  ctaSecondary?: { label: string; href: string };
   /** Badge text (e.g. "Más popular") */
-  badge?:       string;
+  badge?: string;
   /** Guarantee text */
-  guarantee?:   string;
+  guarantee?: string;
   /** Accent color for highlights */
-  accent?:      string;
+  accent?: string;
   /** Whether this is the featured/highlighted plan */
-  featured?:    boolean;
-  class?:       string;
+  featured?: boolean;
+  class?: string;
 }
 
 const {
   name,
   tagline,
   price,
-  period       = 'pago único',
-  pricePrefix  = 'desde',
-  currency     = '$',
+  period = "pago único",
+  pricePrefix = "desde",
+  currency = "$",
   features,
   cta,
   ctaSecondary,
   badge,
   guarantee,
-  accent       = '#F5A623',
-  featured     = true,
+  accent = "#F5A623",
+  featured = true,
   class: className,
 } = Astro.props;
 
-const includedFeatures = features.filter(f => f.included);
-const excludedFeatures = features.filter(f => !f.included);
+const includedFeatures = features.filter((f) => f.included);
+const excludedFeatures = features.filter((f) => !f.included);
 ---
 
 <div
   class:list={[
-    'relative rounded-2xl overflow-hidden',
-    featured
-      ? 'border-2 shadow-lg'
-      : 'border border-surface bg-surface-card',
+    "relative rounded-2xl overflow-hidden",
+    featured ? "border-2 shadow-lg" : "border border-surface bg-surface-card",
     className,
   ]}
-  style={featured ? `border-color: ${accent}50; background: linear-gradient(135deg, rgba(245,166,35,0.04) 0%, rgba(30,33,55,1) 50%);` : ''}
+  style={featured
+    ? `border-color: ${accent}50; background: linear-gradient(135deg, rgba(245,166,35,0.04) 0%, rgba(30,33,55,1) 50%);`
+    : ""}
   data-reveal="up"
 >
   <!-- Top gradient bar -->
-  {featured && (
-    <div
-      aria-hidden="true"
-      class="absolute top-0 left-0 right-0 h-px"
-      style={`background: linear-gradient(90deg, transparent, ${accent}, transparent);`}
-    />
-  )}
+  {
+    featured && (
+      <div
+        aria-hidden="true"
+        class="absolute top-0 left-0 right-0 h-px"
+        style={`background: linear-gradient(90deg, transparent, ${accent}, transparent);`}
+      />
+    )
+  }
 
   <!-- Badge -->
-  {badge && (
-    <div class="absolute top-4 right-4 z-raised">
-      <span
-        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase"
-        style={`background: ${accent}; color: #0A0C18;`}
-      >
-        {badge}
-      </span>
-    </div>
-  )}
+  {
+    badge && (
+      <div class="absolute top-4 right-4 z-raised">
+        <span
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase"
+          style={`background: ${accent}; color: #0A0C18;`}
+        >
+          {badge}
+        </span>
+      </div>
+    )
+  }
 
   <div class="p-8 md:p-10">
-
     <!-- Plan header -->
     <div class="mb-8">
       <h3 class="font-display font-bold text-2xl text-primary mb-1">{name}</h3>
-      {tagline && (
-        <p class="text-secondary text-sm">{tagline}</p>
-      )}
+      {tagline && <p class="text-secondary text-sm">{tagline}</p>}
     </div>
 
     <!-- Price display -->
     <div class="mb-8 pb-8 border-b border-surface">
-      <p class="text-muted text-xs font-mono tracking-widest uppercase mb-1">{pricePrefix}</p>
+      <p class="text-muted text-xs font-mono tracking-widest uppercase mb-1">
+        {pricePrefix}
+      </p>
       <div class="flex items-end gap-2">
-        <span class="font-display font-extrabold text-5xl md:text-6xl text-primary" style={`color: ${accent};`}>
+        <span
+          class="font-display font-extrabold text-5xl md:text-6xl text-primary"
+          style={`color: ${accent};`}
+        >
           {currency}{price}
         </span>
       </div>
@@ -123,72 +126,111 @@ const excludedFeatures = features.filter(f => !f.included);
 
     <!-- Features list -->
     <ul class="space-y-3 mb-8" role="list">
-      {includedFeatures.map((feature) => (
-        <li class="flex items-start gap-3">
-          <span
-            aria-hidden="true"
-            class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
-            style={`background: ${accent}14; color: ${accent};`}
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-          </span>
-          <span class:list={[
-            'text-sm leading-snug',
-            feature.highlight ? 'font-semibold' : '',
-          ]}
-          style={feature.highlight ? `color: ${accent};` : ''}
-          >
-            {feature.text}
-            {feature.note && (
-              <span class="text-muted text-xs block mt-0.5">{feature.note}</span>
-            )}
-          </span>
-        </li>
-      ))}
+      {
+        includedFeatures.map((feature) => (
+          <li class="flex items-start gap-3">
+            <span
+              aria-hidden="true"
+              class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
+              style={`background: ${accent}14; color: ${accent};`}
+            >
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span
+              class:list={[
+                "text-sm leading-snug",
+                feature.highlight ? "font-semibold" : "",
+              ]}
+              style={feature.highlight ? `color: ${accent};` : ""}
+            >
+              {feature.text}
+              {feature.note && (
+                <span class="text-muted text-xs block mt-0.5">
+                  {feature.note}
+                </span>
+              )}
+            </span>
+          </li>
+        ))
+      }
 
-      {excludedFeatures.length > 0 && excludedFeatures.map((feature) => (
-        <li class="flex items-start gap-3 opacity-40">
-          <span
-            aria-hidden="true"
-            class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-surface-card"
-          >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </span>
-          <span class="text-sm text-muted line-through leading-snug">
-            {feature.text}
-          </span>
-        </li>
-      ))}
+      {
+        excludedFeatures.length > 0 &&
+          excludedFeatures.map((feature) => (
+            <li class="flex items-start gap-3 opacity-40">
+              <span
+                aria-hidden="true"
+                class="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5 bg-surface-card"
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                >
+                  <>
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </>
+                </svg>
+              </span>
+              <span class="text-sm text-muted line-through leading-snug">
+                {feature.text}
+              </span>
+            </li>
+          ))
+      }
     </ul>
 
     <!-- CTAs -->
     <div class="space-y-3">
       <a
         href={cta.href}
-        class="
-          flex items-center justify-center w-full h-14 rounded-xl
+        class="flex items-center justify-center w-full h-14 rounded-xl
           font-display font-bold text-base tracking-wide
           transition-all duration-normal ease-spring
           hover:brightness-110 hover:scale-[1.02] hover:shadow-lg
           active:scale-[0.98]
-          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-        "
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         style={`background: ${accent}; color: #0A0C18; box-shadow: 0 4px 24px ${accent}30; --tw-ring-color: ${accent};`}
       >
         {cta.label}
-        <svg class="ml-2" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        <svg
+          class="ml-2"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <line x1="5" y1="12" x2="19" y2="12"></line><polyline
+            points="12 5 19 12 12 19"></polyline>
         </svg>
       </a>
 
-      {ctaSecondary && (
-        <a
-          href={ctaSecondary.href}
-          class="
+      {
+        ctaSecondary && (
+          <a
+            href={ctaSecondary.href}
+            class="
             flex items-center justify-center w-full h-11 rounded-xl
             text-sm font-semibold text-secondary
             border border-surface
@@ -196,20 +238,31 @@ const excludedFeatures = features.filter(f => !f.included);
             transition-all duration-fast
             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary
           "
-        >
-          {ctaSecondary.label}
-        </a>
-      )}
+          >
+            {ctaSecondary.label}
+          </a>
+        )
+      }
     </div>
 
     <!-- Guarantee -->
-    {guarantee && (
-      <p class="mt-5 text-center text-xs text-muted flex items-center justify-center gap-1.5">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        {guarantee}
-      </p>
-    )}
+    {
+      guarantee && (
+        <p class="mt-5 text-center text-xs text-muted flex items-center justify-center gap-1.5">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            aria-hidden="true"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          {guarantee}
+        </p>
+      )
+    }
   </div>
 </div>
