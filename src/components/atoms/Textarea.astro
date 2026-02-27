@@ -1,0 +1,43 @@
+---
+/**
+ * Textarea.astro — Atom
+ * High-fidelity textarea with floating labels and glow-on-focus.
+ */
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  rows?: number;
+  class?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  placeholder = " ",
+  required,
+  rows = 4,
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={["relative group", className]}>
+  <textarea
+    id={id}
+    name={name}
+    required={required}
+    placeholder={placeholder}
+    rows={rows}
+    class="peer w-full p-4 pt-5 bg-surface-card/40 backdrop-blur-sm border border-white/10 rounded-xl text-text-primary text-base placeholder-transparent resize-y focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50 focus:outline-none transition-all duration-300"
+  ></textarea>
+  <label
+    for={id}
+    class="absolute left-4 top-4 text-text-muted text-base cursor-text transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-brand-primary peer-focus:bg-surface-bg peer-focus:px-1 peer-focus:rounded-sm peer-valid:-top-2 peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:text-xs peer-[&:not(:placeholder-shown)]:text-text-secondary peer-[&:not(:placeholder-shown)]:bg-surface-bg peer-[&:not(:placeholder-shown)]:px-1 peer-[&:not(:placeholder-shown)]:rounded-sm"
+  >
+    {label}
+    {required && <span class="text-semantic-error ml-1">*</span>}
+  </label>
+</div>

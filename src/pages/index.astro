@@ -19,12 +19,14 @@ import Layout          from '@layouts/Layout.astro';
 import Navbar          from '@organisms/Navbar.astro';
 import Footer          from '@organisms/Footer.astro';
 import TrustTicker     from '@organisms/TrustTicker.astro';
-import Button          from '@atoms/Button.astro';
 import Icon            from '@atoms/Icon.astro';
-import ServiceCard     from '@molecules/ServiceCard.astro';
+import Hero            from '@organisms/Hero.astro';
+import BentoGrid       from '@organisms/BentoGrid.astro';
+import ContactHub      from '@organisms/ContactHub.astro';
 import TestimonialCard from '@molecules/TestimonialCard.astro';
+import { SERVICES } from '@data/services'; // <--- Importamos la data
 
-import { navLinks, services, portfolio, testimonials, stats, footerColumns } from '@data/site';
+import { navLinks, portfolio, testimonials, stats, footerColumns } from '@data/site';
 ---
 
 <Layout
@@ -53,97 +55,44 @@ import { navLinks, services, portfolio, testimonials, stats, footerColumns } fro
   <!-- ═══════════════════════════════════════════════════════
        §1  HERO
   ══════════════════════════════════════════════════════════ -->
-  <section
+  <Hero
     id="hero"
-    class="relative min-h-screen flex items-center overflow-hidden"
-    aria-label="Hero"
+    tagline='<span class="relative flex w-2 h-2 mr-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-60"></span><span class="relative inline-flex rounded-full w-2 h-2 bg-brand-primary"></span></span> Córdoba, Argentina · +280 proyectos'
+    title='Ingeniería de Conversión<br/>que <span class="text-gradient">escala tu negocio</span>.'
+    subtitle='12 años transformando marcas con <strong class="text-primary font-semibold">Diseño Web Premium</strong>, <strong class="text-primary font-semibold">Marketing Estratégico</strong> e <strong class="text-primary font-semibold">Identidad Visual</strong> en Córdoba y el mundo.'
+    actions={[
+      { variant: 'primary', label: 'Solicitar presupuesto gratis', href: '#contacto' },
+      { variant: 'secondary', label: 'Ver nuestros servicios', href: '#servicios' }
+    ]}
   >
-    <!-- GSAP-driven parallax bg elements — animated via script below -->
-    <div id="hero-grid" aria-hidden="true"      class="absolute inset-0 noise-overlay pointer-events-none"
-      style="background-image: linear-gradient(var(--color-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.5;"
-    />
-    <div id="hero-glow-1" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-      style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-glow-primary) 0%, transparent 65%); border-radius: 50%;"
-    />
-    <div id="hero-glow-2" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-      style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-glow-secondary) 0%, transparent 65%); border-radius: 50%;"
-    />
-
-    <!-- Scan-line decoration -->
-    <div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
-      <div class="animate-scan-line absolute left-0 right-0 h-px opacity-10"
-        style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent);"
+    <Fragment slot="bg">
+      <div id="hero-grid" aria-hidden="true" class="absolute inset-0 noise-overlay pointer-events-none"
+        style="background-image: linear-gradient(var(--color-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.5;"
       />
-    </div>
-
-    <div class="container-site relative z-base w-full pt-28 pb-20">
-      <div class="max-w-5xl">
-
-        <!-- Eyebrow -->
-        <div data-reveal="up" class="flex items-center gap-3 mb-10">
-          <span class="section-eyebrow">
-            <span class="relative flex w-2 h-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-60"></span>
-              <span class="relative inline-flex rounded-full w-2 h-2 bg-brand-primary"></span>
-            </span>
-            Córdoba, Argentina · +280 proyectos
-          </span>
-        </div>
-
-        <!-- Headline — massif -->
-        <h1
-          id="hero-headline"
-          data-reveal="up"
-          data-reveal-delay="0.05"
-          class="font-display font-extrabold text-primary mb-8"
-          style="font-size: clamp(3.5rem, 8vw, 6rem); letter-spacing: -0.04em; line-height: 1.05; text-wrap: balance;"
-        >
-          No Hacemos Webs.<br/>
-          Construimos <span class="text-gradient">Motores de Venta</span>.
-        </h1>
-
-        <!-- Subheadline -->
-        <p
-          data-reveal="up"
-          data-reveal-delay="0.12"
-          class="text-secondary text-xl leading-relaxed max-w-2xl mb-12"
-          style="text-wrap: balance;"
-        >
-          12 años transformando marcas con <strong class="text-primary font-semibold">Diseño Web Premium</strong>,
-          <strong class="text-primary font-semibold">Marketing Estratégico</strong> e
-          <strong class="text-primary font-semibold">Identidad Visual</strong>
-          en Córdoba y el mundo.
-        </p>
-
-        <!-- CTAs -->
-        <div data-reveal="up" data-reveal-delay="0.2" class="flex flex-col sm:flex-row gap-4">
-          <Button variant="primary" size="lg" href="#contacto">
-            Solicitar presupuesto gratis
-          </Button>
-          <Button variant="secondary" size="lg" href="#servicios">
-            Ver nuestros servicios
-          </Button>
-        </div>
-
-        <!-- Scroll cue -->
-        <div
-          data-reveal="up"
-          data-reveal-delay="0.35"
-          class="mt-20 flex items-center gap-3 text-muted text-xs font-mono"
-        >
-          <div id="scroll-indicator" class="flex flex-col gap-1 items-center">
-            <div class="w-px h-8 bg-gradient-to-b from-transparent to-brand-primary opacity-60 animate-pulse" />
-          </div>
-          Scroll para explorar
-        </div>
+      <div id="hero-glow-1" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
+        style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-glow-primary) 0%, transparent 65%); border-radius: 50%;"
+      />
+      <div id="hero-glow-2" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
+        style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-glow-secondary) 0%, transparent 65%); border-radius: 50%;"
+      />
+      <div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
+        <div class="animate-scan-line absolute left-0 right-0 h-px opacity-10"
+          style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent);"
+        />
       </div>
-    </div>
-
-    <!-- Bottom fade to next section -->
-    <div aria-hidden="true" class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
-      style="background: linear-gradient(to bottom, transparent, var(--color-surface-bg));"
-    />
-  </section>
+      <div aria-hidden="true" class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+        style="background: linear-gradient(to bottom, transparent, var(--color-surface-bg)); z-index: 10;"
+      />
+    </Fragment>
+    <Fragment slot="content">
+      <div class="mt-20 flex flex-col items-center gap-3 text-muted text-xs font-mono opacity-70">
+        <div id="scroll-indicator" class="flex flex-col gap-1 items-center">
+          <div class="w-px h-8 bg-gradient-to-b from-transparent to-brand-primary opacity-60 animate-pulse" />
+        </div>
+        <p>Scroll para explorar</p>
+      </div>
+    </Fragment>
+  </Hero>
 
 
   <!-- ═══════════════════════════════════════════════════════
@@ -165,64 +114,15 @@ import { navLinks, services, portfolio, testimonials, stats, footerColumns } fro
   <!-- ═══════════════════════════════════════════════════════
        §3  SERVICES BENTO GRID
   ══════════════════════════════════════════════════════════ -->
-  <section
+  <BentoGrid
     id="servicios"
-    class="py-24 md:py-36 relative"
-    aria-labelledby="services-heading"
-  >
-    <div class="container-site">
-      <!-- Section header -->
-      <div class="grid lg:grid-cols-2 gap-8 mb-16 items-end">
-        <div>
-          <div data-reveal="up" class="mb-4">
-            <span class="section-eyebrow">Servicios</span>
-          </div>
-          <h2
-            id="services-heading"
-            data-reveal="up"
-            data-reveal-delay="0.08"
-            class="font-display font-extrabold text-primary"
-            style="font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05;"
-          >
-            Todo lo que tu<br/>marca digital necesita.
-          </h2>
-        </div>
-        <div data-reveal="up" data-reveal-delay="0.12" class="max-w-sm lg:ml-auto">
-          <p class="text-secondary leading-relaxed mb-6">
-            Integramos diseño, tecnología y estrategia de marketing para que cada
-            proyecto sea una inversión con retorno medible.
-          </p>
-          <a href="#contacto" class="inline-flex items-center gap-2 text-sm font-semibold text-brand-primary hover:gap-4 transition-all duration-fast">
-            Hablar con un especialista
-            <Icon name="arrow-right" size={14} />
-          </a>
-        </div>
-      </div>
-
-      <!-- Bento grid with anchor IDs per service category -->
-      <div
-        data-reveal-group
-        class="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        {services.map((s) => (
-          <div id={s.anchorId} data-reveal-item class={s.bento ?? 'col-span-1'}>
-            <ServiceCard
-              id={s.id}
-              title={s.title}
-              description={s.description}
-              icon={s.icon}
-              tag={s.tag}
-              stat={s.stat}
-              href={s.href}
-              ctaText={s.ctaText}
-              accent={s.accent}
-              class="h-full"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
+    eyebrow="Servicios"
+    title="Todo lo que tu<br/>marca digital necesita."
+    description="Integramos diseño, tecnología y estrategia de marketing para que cada proyecto sea una inversión con retorno medible."
+    ctaLabel="Hablar con un especialista"
+    ctaHref="#contacto"
+    items={SERVICES}
+  />
 
 
   <!-- ═══════════════════════════════════════════════════════
@@ -453,234 +353,9 @@ import { navLinks, services, portfolio, testimonials, stats, footerColumns } fro
 
 
   <!-- ═══════════════════════════════════════════════════════
-       §7  CONTACT FORM — GLASSMORPHISM
+       §7  CONTACT HUB — GLASSMORPHISM & MAGNETIC CTA
   ══════════════════════════════════════════════════════════ -->
-  <section
-    id="contacto"
-    class="py-24 md:py-36 relative overflow-hidden"
-    aria-labelledby="contact-heading"
-    style="background: var(--color-surface-overlay);"
-  >
-    <!-- Decorative radials -->
-    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 60% 80% at 0% 100%, var(--color-glow-primary) 0%, transparent 50%), radial-gradient(ellipse 40% 60% at 100% 0%, var(--color-glow-secondary) 0%, transparent 50%);"
-    />
-
-    <div class="container-site relative z-base">
-      <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
-
-        <!-- Left: copy -->
-        <div class="lg:sticky lg:top-24">
-          <div data-reveal="up" class="mb-5">
-            <span class="section-eyebrow">Contacto</span>
-          </div>
-          <h2
-            id="contact-heading"
-            data-reveal="up"
-            data-reveal-delay="0.08"
-            class="font-display font-extrabold text-primary mb-6"
-            style="font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05;"
-          >
-            Empezá hoy.<br/>
-            <span class="text-brand-primary">Te respondemos</span><br/>
-            en menos de 24hs.
-          </h2>
-          <p class="text-secondary leading-relaxed mb-10" data-reveal="up" data-reveal-delay="0.12">
-            Contanos sobre tu proyecto y un especialista te preparará
-            una propuesta personalizada sin costo.
-          </p>
-
-          <!-- Contact quick links -->
-          <ul class="space-y-4" data-reveal="up" data-reveal-delay="0.16">
-            {[
-              { icon: 'whatsapp' as const, label: '+54 9 351 500-0000', href: 'https://wa.me/5493515000000', color: '#22D35A' },
-              { icon: 'mail'     as const, label: 'hola@tradeweb.com.ar', href: 'mailto:hola@tradeweb.com.ar', color: '#0CF2D0' },
-              { icon: 'map-pin'  as const, label: 'Córdoba, Argentina', href: 'https://maps.google.com/?q=Córdoba,+Argentina', color: '#1B6FFF' },
-            ].map(item => (
-              <li>
-                <a
-                  href={item.href}
-                  class="flex items-center gap-3 text-secondary hover:text-primary transition-colors duration-fast group"
-                >
-                  <span
-                    class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 transition-transform duration-fast group-hover:scale-110"
-                    style={`background: ${item.color}14; color: ${item.color};`}
-                  >
-                    <Icon name={item.icon} size={16} />
-                  </span>
-                  <span class="text-sm">{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <!-- Right: Glassmorphism form -->
-        <div data-reveal="up" data-reveal-delay="0.1">
-          <form
-            id="contact-form"
-            novalidate
-            aria-label="Formulario de contacto"
-            class="glass rounded-2xl p-8 md:p-10 space-y-6"
-            style="border-color: var(--color-brand-primary);"
-          >
-            <!-- Name + Email row -->
-            <div class="grid sm:grid-cols-2 gap-6">
-              <div class="form-field-wrap">
-                <label for="cf-name" class="form-label">
-                  Nombre <span aria-hidden="true" class="text-semantic-error">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="cf-name"
-                  name="nombre"
-                  autocomplete="given-name"
-                  required
-                  minlength="2"
-                  placeholder="Tu nombre"
-                  class="form-input"
-                  aria-required="true"
-                  aria-describedby="cf-name-err"
-                />
-                <span id="cf-name-err" role="alert" class="form-error hidden">
-                  Ingresá tu nombre
-                </span>
-              </div>
-
-              <div class="form-field-wrap">
-                <label for="cf-email" class="form-label">
-                  Email <span aria-hidden="true" class="text-semantic-error">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="cf-email"
-                  name="email"
-                  autocomplete="email"
-                  required
-                  placeholder="tu@email.com"
-                  class="form-input"
-                  aria-required="true"
-                  aria-describedby="cf-email-err"
-                />
-                <span id="cf-email-err" role="alert" class="form-error hidden">
-                  Ingresá un email válido
-                </span>
-              </div>
-            </div>
-
-            <!-- Service select -->
-            <div class="form-field-wrap">
-              <label for="cf-service" class="form-label">¿Qué servicio necesitás?</label>
-              <select id="cf-service" name="servicio" class="form-input" style="appearance: none;">
-                <option value="">Seleccioná un servicio</option>
-                <option value="landing">Landing Page</option>
-                <option value="ecommerce">E-Commerce</option>
-                <option value="hotel">Sitio para Hotel</option>
-                <option value="seo">SEO Estratégico</option>
-                <option value="ads">Google & Meta Ads</option>
-                <option value="branding">Identidad Visual</option>
-                <option value="otro">Otro / No sé aún</option>
-              </select>
-            </div>
-
-            <!-- Budget range -->
-            <div class="form-field-wrap">
-              <label for="cf-budget" class="form-label">Presupuesto estimado</label>
-              <select id="cf-budget" name="presupuesto" class="form-input" style="appearance: none;">
-                <option value="">Seleccioná un rango</option>
-                <option value="lt30">Hasta $30.000 ARS</option>
-                <option value="30-80">$30.000 – $80.000 ARS</option>
-                <option value="80-200">$80.000 – $200.000 ARS</option>
-                <option value="gt200">Más de $200.000 ARS</option>
-                <option value="usd">Presupuesto en USD</option>
-              </select>
-            </div>
-
-            <!-- Message -->
-            <div class="form-field-wrap">
-              <label for="cf-message" class="form-label">
-                Contanos sobre tu proyecto <span aria-hidden="true" class="text-semantic-error">*</span>
-              </label>
-              <textarea
-                id="cf-message"
-                name="mensaje"
-                required
-                minlength="20"
-                rows="4"
-                placeholder="¿Qué necesitás? ¿Tenés fecha límite? ¿Algún referente de diseño?"
-                class="form-input resize-none"
-                aria-required="true"
-                aria-describedby="cf-message-err"
-              ></textarea>
-              <span id="cf-message-err" role="alert" class="form-error hidden">
-                Contanos al menos brevemente qué necesitás
-              </span>
-            </div>
-
-            <!-- Submit -->
-            <button
-              type="submit"
-              id="cf-submit"
-              class="
-                relative w-full h-14 rounded-xl
-                bg-brand-primary text-[#0A0C18]
-                font-display font-bold text-base tracking-wide
-                overflow-hidden
-                hover:brightness-110 hover:shadow-glow
-                active:scale-[0.98]
-                transition-all duration-normal ease-spring
-                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2
-                disabled:opacity-60 disabled:cursor-not-allowed disabled:pointer-events-none
-              "
-              aria-label="Enviar solicitud de presupuesto"
-            >
-              <!-- Shimmer layer -->
-              <span aria-hidden="true" class="btn-shimmer absolute inset-0" />
-              <!-- States: text / spinner / check -->
-              <span id="cf-btn-text" class="inline-flex items-center gap-2 transition-opacity">
-                Enviar solicitud
-              </span>
-              <span id="cf-btn-spinner" class="absolute inset-0 flex items-center justify-center opacity-0" aria-hidden="true">
-                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span class="ml-2 text-sm">Procesando…</span>
-              </span>
-              <span id="cf-btn-check" class="absolute inset-0 flex items-center justify-center opacity-0" aria-hidden="true">
-                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                <span class="ml-2 text-sm font-semibold">¡Enviado!</span>
-              </span>
-            </button>
-
-            <!-- Success message (hidden) -->
-            <div
-              id="cf-success"
-              role="status"
-              aria-live="polite"
-              hidden
-              class="flex items-center gap-3 p-4 rounded-xl text-sm font-medium"
-              style="background: rgba(34, 211, 90, 0.1); color: var(--color-semantic-success); border: 1px solid rgba(34, 211, 90, 0.2);"
-            >
-              <Icon name="check" size={18} />
-              ¡Mensaje recibido! Te respondemos en menos de 24hs.
-            </div>
-
-            <p class="text-center text-muted text-xs">
-              Tu información está protegida por nuestra
-              <a href="/privacidad" class="underline hover:text-secondary transition-colors">Política de Privacidad</a>.
-            </p>
-            <!-- P2: urgency social proof signal -->
-            <p class="text-center text-xs" style="color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace;">
-              ⚡ Respondemos en &lt;24hs · Disponibilidad limitada para Q1 2026
-            </p>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
+  <ContactHub id="contacto" />
 
   <!-- Footer -->
   <Footer

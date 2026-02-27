@@ -303,7 +303,7 @@ const {
     '[tabindex]:not([tabindex="-1"])',
   ].join(', ');
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('astro:page-load', () => {
 
     // ── Theme Toggle ───────────────────────────────────────────────────────────
     const html     = document.documentElement;

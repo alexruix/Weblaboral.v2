@@ -1,0 +1,76 @@
+---
+/**
+ * Select.astro — Atom
+ * High-fidelity native select with custom chevron and glow-on-focus.
+ */
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  options: Option[];
+  required?: boolean;
+  class?: string;
+  placeholder?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  options,
+  placeholder = "Seleccionar",
+  required,
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={["relative group", className]}>
+  <select
+    id={id}
+    name={name}
+    required={required}
+    class="peer w-full h-14 px-4 bg-surface-card/40 backdrop-blur-sm border border-white/10 rounded-xl text-text-primary text-base appearance-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/50 focus:outline-none transition-all duration-300"
+  >
+    <option value="" disabled selected hidden class="text-text-muted"
+      >{placeholder}</option
+    >
+    {
+      options.map((opt) => (
+        <option value={opt.value} class="bg-surface-bg text-text-primary">
+          {opt.label}
+        </option>
+      ))
+    }
+  </select>
+
+  <!-- Custom Chevron -->
+  <div
+    class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted transition-colors duration-300 peer-focus:text-brand-primary"
+  >
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </div>
+
+  <label
+    for={id}
+    class="absolute left-4 top-4 text-text-muted text-base cursor-text transition-all duration-300 peer-focus:-top-2 peer-focus:text-xs peer-focus:text-brand-primary peer-focus:bg-surface-bg peer-focus:px-1 peer-focus:rounded-sm peer-valid:-top-2 peer-valid:text-xs peer-valid:text-text-secondary peer-valid:bg-surface-bg peer-valid:px-1 peer-valid:rounded-sm"
+  >
+    {label}
+    {required && <span class="text-semantic-error ml-1">*</span>}
+  </label>
+</div>

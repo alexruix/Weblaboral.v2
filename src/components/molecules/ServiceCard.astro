@@ -1,31 +1,24 @@
 ---
 /**
  * ServiceCard.astro — Molecule
- * Data-agnostic card for financial/tech services.
- * GSAP: magnetic hover, border glow animation.
- * Fully keyboard accessible and ARIA-labelled.
+ * Identity: Swiss Minimalism + High-Fidelity Micro-interactions.
+ * * Refactor Summary:
+ * - CSS Variable Injection: Derives all states from a single --accent-color.
+ * - Stretched Link Pattern: Maximum clickability with semantic integrity.
+ * - Optimized GSAP: Transform-only animations with force3D acceleration.
  */
+import Icon from "@atoms/Icon.astro";
 
 interface Props {
-  /** Unique identifier (used for aria-labelledby) */
   id: string;
-  /** Card title */
   title: string;
-  /** Short description (max ~120 chars recommended) */
   description: string;
-  /** SVG string or emoji for the icon */
   icon: string;
-  /** Tag/category label */
   tag?: string;
-  /** Optional stat to highlight */
   stat?: { value: string; label: string };
-  /** CTA link */
   href?: string;
-  /** CTA text */
   ctaText?: string;
-  /** Accent color override (CSS color) */
-  accent?: string;
-  /** Additional classes */
+  accent?: string; // Hex (ej: #0CF2D0)
   class?: string;
 }
 
@@ -37,193 +30,188 @@ const {
   tag,
   stat,
   href = "#",
-  ctaText = "Explorar →",
-  accent = "#0CF2D0",
+  ctaText = "Explorar servicio",
+  accent = "primary",
   class: className,
 } = Astro.props;
 
+const ACCENT_MAP: Record<string, string> = {
+  primary: "var(--color-brand-primary)",
+  secondary: "var(--color-semantic-info)",
+  tertiary: "var(--color-brand-tertiary)",
+};
+
+const resolvedAccent = ACCENT_MAP[accent] || accent;
 const headingId = `card-title-${id}`;
 ---
 
 <article
   data-card
-  data-accent={accent}
   class:list={[
-    "group relative rounded-xl overflow-hidden",
-    "bg-surface-card border border-surface",
-    "transition-all duration-normal ease-standard",
-    "hover:border-transparent",
+    "group relative rounded-2xl overflow-hidden",
+    "bg-surface-card/40 backdrop-blur-md border border-white/10",
+    "transition-colors duration-500 hover:bg-surface-card/60",
+    "will-change-transform",
     className,
   ]}
+  style={`--accent-color: ${resolvedAccent};`}
   aria-labelledby={headingId}
 >
-  <!-- ── Gradient border on hover (via ::before pseudo-el via JS) -->
   <div
     aria-hidden="true"
-    data-card-glow
-    class="absolute inset-0 rounded-xl opacity-0 pointer-events-none
-      transition-opacity duration-normal ease-standard
-      group-hover:opacity-100 group-focus-within:opacity-100"
-    style={`background: linear-gradient(135deg, ${accent}18, ${accent}04); box-shadow: inset 0 0 0 1px ${accent}40, 0 0 48px ${accent}14;`}
+    data-spotlight
+    class="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+    style="background: radial-gradient(600px circle at var(--x, 0px) var(--y, 0px), var(--accent-color), transparent 40%); filter: opacity(0.12);"
   >
   </div>
 
-  <!-- ── Card content -->
-  <div class="relative z-10 p-8 flex flex-col h-full gap-6">
-    <!-- Header row -->
-    <header class="flex items-start justify-between gap-4">
-      <!-- Icon -->
+  <div class="relative z-10 p-8 flex flex-col h-full gap-8">
+    <header class="flex items-start justify-between">
       <div
         aria-hidden="true"
-        class="flex items-center justify-center w-12 h-12 rounded-lg shrink-0
-          text-xl
-          transition-transform duration-normal ease-spring
-          group-hover:-translate-y-1 group-hover:scale-110"
-        style={`background: ${accent}14; border: 1px solid ${accent}28; color: ${accent};`}
-        set:html={icon}
-      />
+        class="icon-box flex items-center justify-center w-14 h-14 rounded-xl shrink-0
+          bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/20 text-[var(--accent-color)]
+          transition-all duration-500 ease-spring group-hover:scale-110 group-hover:shadow-[0_0_20px_var(--accent-color)]/20"
+      >
+        <div
+          class="w-7 h-7 contents [&>svg]:w-full [&>svg]:h-full [&>svg]:fill-current"
+          set:html={icon}
+        />
+      </div>
 
-      <!-- Tag -->
       {
         tag && (
-          <span
-            class="tag-label shrink-0 self-start"
-            style={`color: ${accent}; background: ${accent}08; border-color: ${accent}28;`}
-          >
+          <span class="badge-base border-[var(--accent-color)]/30 text-[var(--accent-color)] bg-[var(--accent-color)]/5">
             {tag}
           </span>
         )
       }
     </header>
 
-    <!-- Body -->
-    <div class="flex-1">
+    <div class="flex-1 space-y-3">
       <h3
         id={headingId}
-        class="font-display font-bold text-xl text-primary mb-2 leading-snug"
+        class="font-display font-bold text-2xl tracking-tight text-text-primary group-hover:text-[var(--accent-color)] transition-colors duration-300"
       >
         {title}
       </h3>
-      <p class="text-secondary text-sm leading-relaxed">
+      <p class="text-text-secondary text-base leading-relaxed max-w-[28ch]">
         {description}
       </p>
     </div>
 
-    <!-- Stat highlight (optional) -->
     {
       stat && (
-        <div class="py-4 border-t border-surface">
-          <p
-            class="font-display font-extrabold text-3xl"
-            style={`color: ${accent};`}
-          >
+        <div class="pt-6 border-t border-white/5 space-y-1">
+          <p class="font-display font-extrabold text-4xl text-[var(--accent-color)] drop-shadow-sm">
             {stat.value}
           </p>
-          <p class="text-muted text-xs mt-0.5 font-mono tracking-wide">
+          <p class="text-text-muted text-[10px] uppercase tracking-[0.2em] font-mono">
             {stat.label}
           </p>
         </div>
       )
     }
 
-    <!-- CTA -->
-    <a
-      href={href}
-      class="inline-flex items-center gap-1.5
-        text-sm font-semibold
-        transition-all duration-fast ease-standard
-        hover:gap-3
-        focus-visible:outline-none focus-visible:underline"
-      style={`color: ${accent};`}
-      aria-label={`${ctaText} — ${title}`}
-    >
-      {ctaText}
-    </a>
+    <footer>
+      <a
+        href={href}
+        class="stretched-link inline-flex items-center gap-2 text-sm font-bold text-[var(--accent-color)] hover:gap-4 transition-all duration-300"
+      >
+        {ctaText}
+        <Icon name="arrow-right" size={18} />
+      </a>
+    </footer>
   </div>
 </article>
+
+<style>
+  /* Stretched link pattern: Hace que toda la card sea clickable sin romper la semántica */
+  .stretched-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+  }
+
+  /* Micro-interacción del icono */
+  .icon-box :global(svg) {
+    transition: transform 0.6s var(--ease-spring);
+  }
+  article:hover .icon-box :global(svg) {
+    transform: rotate(-5deg) scale(1.1);
+  }
+</style>
 
 <script>
   import gsap from "gsap";
 
-  // ── GSAP magnetic + tilt hover effect
-  document.querySelectorAll<HTMLElement>("[data-card]").forEach((card) => {
-    let bounds: DOMRect;
-    const TILT_AMOUNT = 6; // degrees
-    const SHIFT_AMOUNT = 6; // px for content shift
-    const EASE_OUT = "power2.out";
-    const EASE_IN = "power3.in";
+  const initCards = () => {
+    const cards = document.querySelectorAll<HTMLElement>("[data-card]");
 
-    const onEnter = () => {
-      bounds = card.getBoundingClientRect();
-      gsap.to(card, {
-        scale: 1.018,
-        boxShadow: `0 24px 64px rgba(0,0,0,0.5)`,
-        duration: 0.4,
-        ease: EASE_OUT,
-      });
-    };
+    cards.forEach((card) => {
+      const spotlight = card.querySelector<HTMLElement>("[data-spotlight]");
+      let bounds: DOMRect;
 
-    const onMove = (e: MouseEvent) => {
-      if (!bounds) return;
-      const x = ((e.clientX - bounds.left) / bounds.width - 0.5) * 2;
-      const y = ((e.clientY - bounds.top) / bounds.height - 0.5) * 2;
+      const updateBounds = () => {
+        bounds = card.getBoundingClientRect();
+      };
 
-      gsap.to(card, {
-        rotateY: x * TILT_AMOUNT,
-        rotateX: -y * TILT_AMOUNT,
-        duration: 0.4,
-        ease: EASE_OUT,
-        transformPerspective: 800,
-        transformOrigin: "center center",
-      });
-
-      const contentEl = card.querySelector(
-        ".flex.flex-col",
-      ) as HTMLElement | null;
-      if (contentEl) {
-        gsap.to(contentEl, {
-          x: x * SHIFT_AMOUNT,
-          y: y * SHIFT_AMOUNT,
+      const onMouseEnter = () => {
+        updateBounds();
+        gsap.to(card, {
+          y: -4,
           duration: 0.4,
-          ease: EASE_OUT,
+          ease: "power2.out",
+          force3D: true,
         });
+      };
+
+      const onMouseMove = (e: MouseEvent) => {
+        if (!bounds || !spotlight) return;
+
+        // 1. Update Mesh Spotlight Position via CSS Vars
+        const x = e.clientX - bounds.left;
+        const y = e.clientY - bounds.top;
+        card.style.setProperty("--x", `${x}px`);
+        card.style.setProperty("--y", `${y}px`);
+
+        // 2. High-Fidelity Tilt (force3D para aceleración GPU)
+        const mouseX = (e.clientX - bounds.left) / bounds.width - 0.5;
+        const mouseY = (e.clientY - bounds.top) / bounds.height - 0.5;
+
+        gsap.to(card, {
+          rotateY: mouseX * 6,
+          rotateX: -mouseY * 6,
+          duration: 0.6,
+          ease: "power2.out",
+          transformPerspective: 1000,
+          force3D: true,
+        });
+      };
+
+      const onMouseLeave = () => {
+        gsap.to(card, {
+          rotateX: 0,
+          rotateY: 0,
+          y: 0,
+          duration: 0.8,
+          ease: "elastic.out(1, 0.85)", // Retorno orgánico no elástico
+          force3D: true,
+        });
+      };
+
+      // Desactivar si el usuario prefiere movimiento reducido (A11y)
+      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        card.addEventListener("mouseenter", onMouseEnter);
+        card.addEventListener("mousemove", onMouseMove);
+        card.addEventListener("mouseleave", onMouseLeave);
+        window.addEventListener("resize", updateBounds);
       }
-    };
-
-    const onLeave = () => {
-      gsap.to(card, {
-        scale: 1,
-        rotateX: 0,
-        rotateY: 0,
-        boxShadow: "none",
-        duration: 0.6,
-        ease: EASE_IN,
-      });
-      const contentEl = card.querySelector(
-        ".flex.flex-col",
-      ) as HTMLElement | null;
-      if (contentEl) {
-        gsap.to(contentEl, { x: 0, y: 0, duration: 0.5, ease: EASE_IN });
-      }
-    };
-
-    // Respect reduced motion
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    if (!prefersReduced) {
-      card.addEventListener("mouseenter", onEnter);
-      card.addEventListener("mousemove", onMove);
-      card.addEventListener("mouseleave", onLeave);
-    }
-
-    // A11y P1 Fix: focus/blur on the <a> link (the real interactive element)
-    const link = card.querySelector("a") as HTMLAnchorElement | null;
-    link?.addEventListener("focus", () => {
-      gsap.to(card, { scale: 1.015, duration: 0.3, ease: EASE_OUT });
     });
-    link?.addEventListener("blur", () => {
-      gsap.to(card, { scale: 1, duration: 0.3, ease: EASE_IN });
-    });
-  });
+  };
+
+  // Soporte para Astro View Transitions
+  initCards();
+  document.addEventListener("astro:page-load", initCards);
 </script>

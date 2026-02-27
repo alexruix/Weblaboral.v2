@@ -1,0 +1,108 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { services } from "@data/site";
+
+export async function getStaticPaths() {
+  return services.map((service) => ({
+    params: { slug: service.id },
+    props: { service },
+  }));
+}
+
+const { service } = Astro.props;
+---
+
+<Layout
+  seo={{
+    title: `${service.title} | TradeWeb Servicios`,
+    description: service.description,
+  }}
+>
+  <main class="pt-32 pb-24 min-h-screen">
+    <div class="container-site">
+      <div class="max-w-3xl mx-auto">
+        <a
+          href="/#servicios"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary mb-8 transition-colors"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Volver a Servicios
+        </a>
+
+        <div class="flex items-center gap-4 mb-6">
+          <div
+            class="w-14 h-14 rounded-xl flex items-center justify-center text-2xl"
+            style={`background: ${service.accent}14; color: ${service.accent}; border: 1px solid ${service.accent}25;`}
+            set:html={service.icon}
+          />
+          <h1 class="font-display font-bold text-4xl text-primary">
+            {service.title}
+          </h1>
+        </div>
+
+        <div class="mb-8">
+          <span
+            class="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono tracking-widest uppercase"
+            style={`background: ${service.accent}14; color: ${service.accent}; border: 1px solid ${service.accent}25;`}
+          >
+            {service.tag}
+          </span>
+        </div>
+
+        <p class="text-xl text-secondary leading-relaxed mb-12">
+          {service.description}
+        </p>
+
+        {
+          service.stat && (
+            <div class="mb-12 p-8 rounded-2xl glass border border-surface flex flex-col gap-2 relative overflow-hidden">
+              <div
+                class="absolute right-0 top-0 w-64 h-64 rounded-full blur-3xl opacity-10 pointer-events-none"
+                style={`background: ${service.accent};`}
+              />
+              <p
+                class="font-display font-extrabold text-5xl"
+                style={`color: ${service.accent};`}
+              >
+                {service.stat.value}
+              </p>
+              <p class="text-secondary font-mono text-sm tracking-wide uppercase">
+                {service.stat.label}
+              </p>
+            </div>
+          )
+        }
+
+        <div class="prose prose-invert prose-brand max-w-none">
+          <h3>¿Por qué elegir nuestro servicio?</h3>
+          <p>
+            En TradeWeb nos enfocamos en resultados medibles. Nuestro equipo de
+            expertos trabajará mano a mano contigo para asegurar que cada
+            aspecto de tu proyecto tecnológico cumpla con tus objetivos
+            comerciales.
+          </p>
+          <a
+            href="/#contacto"
+            class="inline-flex items-center justify-center px-6 py-3 mt-4 rounded-lg font-bold transition-all duration-fast hover:scale-105"
+            style={`background: ${service.accent}; color: #000; box-shadow: 0 4px 20px ${service.accent}40;`}
+          >
+            Solicitar Información
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

@@ -205,7 +205,7 @@ const defaultJsonLd = {
               duration: 0.8,
               delay,
               ease: "power3.out",
-              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+              scrollTrigger: { trigger: el, start: "top 95%", once: true },
             });
           });
 
@@ -224,15 +224,12 @@ const defaultJsonLd = {
               duration: 0.7,
               stagger: 0.1,
               ease: "power3.out",
-              scrollTrigger: { trigger: group, start: "top 85%", once: true },
+              scrollTrigger: { trigger: group, start: "top 95%", once: true },
             });
           });
       }
 
-      // Initial load
-      initMotion();
-
-      // Astro View Transitions support
+      // Astro View Transitions support (runs on initial load too)
       document.addEventListener("astro:page-load", () => {
         initMotion();
       });
