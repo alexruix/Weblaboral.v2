@@ -29,19 +29,19 @@ const navLinks = [
   {
     label: 'Servicios',
     items: [
-      { label: 'Diseño Web',       href: '#servicios' },
-      { label: 'Marketing Digital', href: '#servicios' },
-      { label: 'Branding',          href: '#servicios' },
+      { label: 'Diseño Web',        href: '#servicios-web' },
+      { label: 'Marketing Digital', href: '#servicios-marketing' },
+      { label: 'Branding',          href: '#servicios-branding' },
     ],
   },
-  { label: 'Portfolio', href: '#portfolio' },
-  { label: 'Nosotros',  href: '#nosotros'  },
-  { label: 'Contacto',  href: '#contacto'  },
+  { label: 'Portfolio',   href: '#portfolio' },
+  { label: 'La Agencia',  href: '#la-agencia'  },
+  { label: 'Contacto',    href: '#contacto'  },
 ];
 
-// ── Services
+// ── Services (3 accents max: primary=#0CF2D0, secondary=#1B6FFF, tertiary=#9B5DE5)
 const services = [
-  // — Web Design (col-span-2 bento)
+  // — Web Design
   {
     id: 'landing',
     title: 'Landing Pages',
@@ -53,6 +53,7 @@ const services = [
     ctaText: 'Ver servicio →',
     accent: '#0CF2D0',
     bento: 'col-span-1 md:col-span-2',
+    anchorId: 'servicios-web',
   },
   {
     id: 'ecommerce',
@@ -86,8 +87,9 @@ const services = [
     stat: { value: 'Top 3', label: 'Posición media en Google' },
     href: '/servicios/seo',
     ctaText: 'Ver resultados →',
-    accent: '#22D35A',
+    accent: '#0CF2D0',
     bento: 'col-span-1',
+    anchorId: 'servicios-marketing',
   },
   {
     id: 'ads',
@@ -97,7 +99,7 @@ const services = [
     tag: 'Marketing',
     href: '/servicios/ads',
     ctaText: 'Explorar →',
-    accent: '#F5A623',
+    accent: '#1B6FFF',
     bento: 'col-span-1 md:col-span-2',
   },
   // — Branding
@@ -110,8 +112,9 @@ const services = [
     stat: { value: '12 años', label: 'Creando marcas memorables' },
     href: '/servicios/branding',
     ctaText: 'Ver proceso →',
-    accent: '#FF3B5C',
+    accent: '#9B5DE5',
     bento: 'col-span-1 md:col-span-2',
+    anchorId: 'servicios-branding',
   },
 ];
 
@@ -155,7 +158,7 @@ const portfolio = [
   },
 ];
 
-// ── Testimonials
+// ── Testimonials — max 3 accents (primary/secondary/tertiary only)
 const testimonials = [
   {
     quote: 'En 45 días lanzamos la tienda, y en el primer mes superamos las ventas físicas. TradeWeb entiende el negocio antes que el diseño.',
@@ -173,7 +176,7 @@ const testimonials = [
     role: 'Director de Marketing',
     company: 'Nómade Hoteles',
     rating: 5,
-    accent: '#0CF2D0',
+    accent: '#1B6FFF',
   },
   {
     quote: 'Teníamos una web vieja y nadie nos encontraba. Ahora somos el primer resultado de Google para nuestra especialidad en Córdoba.',
@@ -181,7 +184,7 @@ const testimonials = [
     role: 'Directora Médica',
     company: 'Clínica Belgrano',
     rating: 5,
-    accent: '#22D35A',
+    accent: '#0CF2D0',
     result: { value: 'Posición #1', label: 'Google Córdoba' },
     featured: true,
   },
@@ -191,16 +194,16 @@ const testimonials = [
     role: 'CEO',
     company: 'FitPlan Pro',
     rating: 5,
-    accent: '#F5A623',
+    accent: '#9B5DE5',
   },
 ];
 
-// ── Stats
+// ── Stats — all use brand-primary for visual unity (Audit fix: single accent in data bar)
 const stats = [
   { value: 12,   suffix: '',       label: 'años en el mercado',        accent: '#0CF2D0' },
-  { value: 280,  suffix: '+',      label: 'proyectos entregados',      accent: '#1B6FFF' },
-  { value: 98,   suffix: '%',      label: 'clientes que recomiendan',  accent: '#9B5DE5' },
-  { value: 4.8,  suffix: '× ROI',  label: 'retorno promedio en Ads',   accent: '#F5A623', decimals: 1 },
+  { value: 280,  suffix: '+',      label: 'proyectos entregados',      accent: '#0CF2D0' },
+  { value: 98,   suffix: '%',      label: 'clientes que recomiendan',  accent: '#0CF2D0' },
+  { value: 4.8,  suffix: '× ROI',  label: 'retorno promedio en Ads',   accent: '#0CF2D0', decimals: 1 },
 ];
 
 // ── Footer columns
@@ -238,7 +241,7 @@ const footerColumns = [
 
 <Layout
   seo={{
-    title: 'TradeWeb — Soluciones Digitales en Córdoba | Diseño Web, SEO y Marketing',
+    title: 'TradeWeb — Ingeniería de Conversión Digital en Córdoba | Diseño Web, SEO y Marketing',
     description: '12 años transformando marcas con Diseño Web Premium, Marketing Estratégico e Identidad Visual en Córdoba y el mundo. Más de 280 proyectos entregados.',
     ogType: 'website',
     jsonLd: {
@@ -269,19 +272,19 @@ const footerColumns = [
   >
     <!-- GSAP-driven parallax bg elements — animated via script below -->
     <div id="hero-grid" aria-hidden="true" class="absolute inset-0 pointer-events-none will-change-transform"
-      style="background-image: linear-gradient(rgba(12,242,208,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(12,242,208,0.025) 1px, transparent 1px); background-size: 72px 72px;"
+      style="background-image: linear-gradient(var(--color-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px); background-size: 72px 72px;"
     />
     <div id="hero-glow-1" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-      style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, rgba(12,242,208,0.06) 0%, transparent 65%); border-radius: 50%;"
+      style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-glow-primary) 0%, transparent 65%); border-radius: 50%;"
     />
     <div id="hero-glow-2" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-      style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(27,111,255,0.05) 0%, transparent 65%); border-radius: 50%;"
+      style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-glow-secondary) 0%, transparent 65%); border-radius: 50%;"
     />
 
     <!-- Scan-line decoration -->
     <div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
       <div class="animate-scan-line absolute left-0 right-0 h-px opacity-10"
-        style="background: linear-gradient(90deg, transparent, #0CF2D0, transparent);"
+        style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent);"
       />
     </div>
 
@@ -305,9 +308,9 @@ const footerColumns = [
           data-reveal="up"
           data-reveal-delay="0.05"
           class="font-display font-extrabold text-primary mb-8"
-          style="font-size: clamp(2.8rem, 7vw, 5.5rem); letter-spacing: -0.04em; line-height: 1.0; text-wrap: balance;"
+          style="font-size: clamp(3.5rem, 8vw, 6rem); letter-spacing: -0.04em; line-height: 1.05; text-wrap: balance;"
         >
-          Soluciones Digitales<br/>
+          Ingeniería de Conversión<br/>
           que <span class="text-gradient">Escalan</span><br/>
           tu Negocio.
         </h1>
@@ -327,11 +330,11 @@ const footerColumns = [
 
         <!-- CTAs -->
         <div data-reveal="up" data-reveal-delay="0.2" class="flex flex-col sm:flex-row gap-4">
-          <Button variant="primary" size="lg" href="#servicios">
-            Conocer servicios
+          <Button variant="primary" size="lg" href="#contacto">
+            Solicitar presupuesto gratis
           </Button>
-          <Button variant="secondary" size="lg" href="#contacto">
-            Solicitar presupuesto
+          <Button variant="secondary" size="lg" href="#servicios">
+            Ver nuestros servicios
           </Button>
         </div>
 
@@ -409,13 +412,13 @@ const footerColumns = [
         </div>
       </div>
 
-      <!-- Bento grid -->
+      <!-- Bento grid with anchor IDs per service category -->
       <div
         data-reveal-group
         class="grid grid-cols-1 md:grid-cols-3 gap-4"
       >
         {services.map((s) => (
-          <div data-reveal-item class={s.bento ?? 'col-span-1'}>
+          <div id={s.anchorId} data-reveal-item class={s.bento ?? 'col-span-1'}>
             <ServiceCard
               id={s.id}
               title={s.title}
@@ -491,10 +494,9 @@ const footerColumns = [
         >
           {portfolio.map((p) => (
             <article
-              class="portfolio-card group relative flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer"
+              class="portfolio-card group relative flex-shrink-0 rounded-2xl overflow-hidden"
               style={`width: min(480px, 80vw); height: 70vh; background: ${p.bg}; border: 1px solid ${p.accent}18;`}
               aria-label={`${p.title} — ${p.category}`}
-              tabindex="0"
             >
               <!-- Top glow strip -->
               <div
@@ -510,26 +512,31 @@ const footerColumns = [
                 style={`background: linear-gradient(135deg, ${p.accent}12 0%, transparent 60%);`}
               />
 
-              <!-- Content -->
-              <div class="absolute inset-0 p-8 md:p-10 flex flex-col justify-between">
+              <!-- A11y: real link wraps entire content -->
+              <a
+                href={`/portfolio/${p.id}`}
+                class="absolute inset-0 p-8 md:p-10 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                style={`--tw-ring-color: ${p.accent};`}
+                aria-label={`Ver proyecto: ${p.title}`}
+              >
                 <div class="flex items-start justify-between">
                   <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-mono tracking-widest uppercase"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-[11px] tracking-widest uppercase font-medium"
                     style={`background: ${p.accent}14; color: ${p.accent}; border: 1px solid ${p.accent}25;`}
                   >
                     {p.category}
                   </span>
-                  <span class="text-muted text-xs font-mono">{p.year}</span>
+                  <span class="text-muted text-xs" style="font-family: 'JetBrains Mono', monospace;">{p.year}</span>
                 </div>
 
                 <!-- Wireframe mockup center -->
                 <div aria-hidden="true" class="flex-1 flex items-center justify-center py-12">
                   <div class="w-full max-w-xs space-y-3">
                     <div class="h-2 rounded-full w-3/4 mx-auto" style={`background: ${p.accent}30;`} />
-                    <div class="h-8 rounded-lg w-full" style="background: rgba(255,255,255,0.05);" />
-                    <div class="h-8 rounded-lg w-4/5" style="background: rgba(255,255,255,0.035);" />
-                    <div class="h-4 rounded w-full mt-2" style="background: rgba(255,255,255,0.025);" />
-                    <div class="h-4 rounded w-5/6" style="background: rgba(255,255,255,0.02);" />
+                    <div class="h-8 rounded-lg w-full" style="background: var(--color-wireframe);" />
+                    <div class="h-8 rounded-lg w-4/5" style="background: var(--color-wireframe);" />
+                    <div class="h-4 rounded w-full mt-2" style="background: var(--color-wireframe-subtle);" />
+                    <div class="h-4 rounded w-5/6" style="background: var(--color-wireframe-faint);" />
                     <div class="h-10 rounded-xl w-36 mx-auto mt-4" style={`background: ${p.accent}35;`} />
                   </div>
                 </div>
@@ -543,14 +550,14 @@ const footerColumns = [
                   </h3>
                   <p class="text-secondary text-sm leading-snug mb-4">{p.desc}</p>
                   <span
-                    class="inline-flex items-center gap-1.5 text-sm font-semibold transition-all duration-fast group-hover:gap-3"
+                    class="inline-flex items-center gap-1.5 text-sm font-semibold"
                     style={`color: ${p.accent};`}
                   >
                     Ver proyecto
                     <Icon name="arrow-right" size={14} />
                   </span>
                 </div>
-              </div>
+              </a>
             </article>
           ))}
         </div>
@@ -575,12 +582,13 @@ const footerColumns = [
        §5  STATS BAR
   ══════════════════════════════════════════════════════════ -->
   <section
-    id="nosotros"
+    id="la-agencia"
     class="py-20 border-y border-surface relative overflow-hidden"
-    aria-label="Datos clave"
+    aria-labelledby="stats-heading"
   >
+    <h2 id="stats-heading" class="sr-only">La Agencia en números</h2>
     <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 80% 100% at 50% 50%, rgba(12,242,208,0.025) 0%, transparent 70%);"
+      style="background: radial-gradient(ellipse 80% 100% at 50% 50%, var(--color-glow-primary) 0%, transparent 70%);"
     />
     <div class="container-site relative z-base">
       <div
@@ -618,7 +626,7 @@ const footerColumns = [
     aria-labelledby="testimonials-heading"
   >
     <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 60% 50% at 100% 50%, rgba(155,93,229,0.04) 0%, transparent 60%);"
+      style="background: radial-gradient(ellipse 60% 50% at 100% 50%, var(--color-glow-tertiary) 0%, transparent 60%);"
     />
     <div class="container-site relative z-base">
       <div class="text-center mb-16">
@@ -668,7 +676,7 @@ const footerColumns = [
   >
     <!-- Decorative radials -->
     <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 60% 80% at 0% 100%, rgba(12,242,208,0.05) 0%, transparent 50%), radial-gradient(ellipse 40% 60% at 100% 0%, rgba(27,111,255,0.04) 0%, transparent 50%);"
+      style="background: radial-gradient(ellipse 60% 80% at 0% 100%, var(--color-glow-primary) 0%, transparent 50%), radial-gradient(ellipse 40% 60% at 100% 0%, var(--color-glow-secondary) 0%, transparent 50%);"
     />
 
     <div class="container-site relative z-base">
@@ -687,7 +695,7 @@ const footerColumns = [
             style="font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05;"
           >
             Empezá hoy.<br/>
-            <span class="text-gradient">Te respondemos</span><br/>
+            <span class="text-brand-primary">Te respondemos</span><br/>
             en menos de 24hs.
           </h2>
           <p class="text-secondary leading-relaxed mb-10" data-reveal="up" data-reveal-delay="0.12">
@@ -700,7 +708,7 @@ const footerColumns = [
             {[
               { icon: 'whatsapp' as const, label: '+54 9 351 500-0000', href: 'https://wa.me/5493515000000', color: '#22D35A' },
               { icon: 'mail'     as const, label: 'hola@tradeweb.com.ar', href: 'mailto:hola@tradeweb.com.ar', color: '#0CF2D0' },
-              { icon: 'map-pin'  as const, label: 'Córdoba, Argentina', href: '#', color: '#1B6FFF' },
+              { icon: 'map-pin'  as const, label: 'Córdoba, Argentina', href: 'https://maps.google.com/?q=Córdoba,+Argentina', color: '#1B6FFF' },
             ].map(item => (
               <li>
                 <a
@@ -727,7 +735,7 @@ const footerColumns = [
             novalidate
             aria-label="Formulario de contacto"
             class="glass rounded-2xl p-8 md:p-10 space-y-6"
-            style="border-color: rgba(12,242,208,0.12);"
+            style="border-color: var(--color-form-focus-ring);"
           >
             <!-- Name + Email row -->
             <div class="grid sm:grid-cols-2 gap-6">
@@ -851,7 +859,7 @@ const footerColumns = [
               aria-live="polite"
               hidden
               class="flex items-center gap-3 p-4 rounded-xl text-sm font-medium"
-              style="background: rgba(34,211,90,0.1); color: #22D35A; border: 1px solid rgba(34,211,90,0.25);"
+              style="background: var(--color-success-bg); color: var(--color-semantic-success); border: 1px solid var(--color-success-border);"
             >
               <Icon name="check" size={18} />
               ¡Mensaje recibido! Te respondemos en menos de 24hs.
@@ -860,6 +868,10 @@ const footerColumns = [
             <p class="text-center text-muted text-xs">
               Tu información está protegida por nuestra
               <a href="/privacidad" class="underline hover:text-secondary transition-colors">Política de Privacidad</a>.
+            </p>
+            <!-- P2: urgency social proof signal -->
+            <p class="text-center text-xs" style="color: var(--color-text-muted); font-family: 'JetBrains Mono', monospace;">
+              ⚡ Respondemos en &lt;24hs · Disponibilidad limitada para Q1 2026
             </p>
           </form>
         </div>
@@ -898,108 +910,133 @@ const footerColumns = [
      GLOBAL PAGE SCRIPTS
 ══════════════════════════════════════════════════════ -->
 <script>
-  // ── Wait for GSAP/ScrollTrigger
-  function waitFor(fn: () => void, tries = 0) {
-    if (typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined') {
-      fn();
-    } else if (tries < 80) {
-      setTimeout(() => waitFor(fn, tries + 1), 100);
-    }
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── §0 DATA-REVEAL SCROLL ANIMATIONS ──────────────────────────────────────
+  if (!prefersReduced) {
+    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+      const dir   = el.dataset.reveal ?? 'up';
+      const delay = parseFloat(el.dataset.revealDelay ?? '0');
+
+      gsap.fromTo(el,
+        {
+          autoAlpha: 0,
+          y: dir === 'up'   ?  28 : 0,
+          x: dir === 'left' ?  28 : dir === 'right' ? -28 : 0,
+        },
+        {
+          autoAlpha: 1, y: 0, x: 0,
+          duration: 0.65,
+          delay,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: el,
+            start:   'top 90%',
+            once:    true,
+          },
+        }
+      );
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
+      const items = group.querySelectorAll<HTMLElement>('[data-reveal-item]');
+      gsap.fromTo(items,
+        { autoAlpha: 0, y: 28 },
+        {
+          autoAlpha: 1, y: 0,
+          duration: 0.55,
+          ease: 'power2.out',
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: group,
+            start:   'top 88%',
+            once:    true,
+          },
+        }
+      );
+    });
   }
 
-  waitFor(() => {
-    const { gsap, ScrollTrigger } = window;
-    gsap.registerPlugin(ScrollTrigger);
+  // ── §1 HERO PARALLAX ──────────────────────────────────────────────────────
+  const heroGrid  = document.getElementById('hero-grid');
+  const heroGlow1 = document.getElementById('hero-glow-1');
+  const heroGlow2 = document.getElementById('hero-glow-2');
 
-    // ── §1 HERO PARALLAX ──────────────────────────────────────────────────────
-    const heroGrid  = document.getElementById('hero-grid');
-    const heroGlow1 = document.getElementById('hero-glow-1');
-    const heroGlow2 = document.getElementById('hero-glow-2');
-
-    if (heroGrid && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      gsap.to(heroGrid, {
-        yPercent: 35,
-        ease: 'none',
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
-      });
-      gsap.to(heroGlow1, {
-        yPercent: -25, xPercent: 10,
-        ease: 'none',
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
-      });
-      gsap.to(heroGlow2, {
-        yPercent: 20, xPercent: -10,
-        ease: 'none',
-        scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
-      });
-    }
-
-    // ── §4 PORTFOLIO HORIZONTAL SCROLL ────────────────────────────────────────
-    const pinWrapper = document.getElementById('portfolio-pin-wrapper');
-    const track      = document.getElementById('portfolio-track');
-    const progressBar = document.getElementById('portfolio-progress');
-
-    if (pinWrapper && track) {
-      // Cards + gaps total width minus one viewport
-      const totalWidth = track.scrollWidth - window.innerWidth;
-
-      gsap.to(track, {
-        x:    () => -totalWidth,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: pinWrapper,
-          start:   'top top',
-          end:     () => `+=${pinWrapper.offsetHeight}`,
-          scrub:   1,
-          pin:     '#portfolio-pin-inner',
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            if (progressBar) progressBar.style.width = `${self.progress * 100}%`;
-          },
-        },
-      });
-
-      // Keyboard navigation for portfolio cards
-      document.querySelectorAll<HTMLElement>('.portfolio-card').forEach((card) => {
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            const link = card.querySelector('a');
-            if (link) link.click();
-          }
-        });
-      });
-    }
-
-    // ── §5 COUNTER ANIMATION ─────────────────────────────────────────────────
-    document.querySelectorAll<HTMLElement>('.counter').forEach((el) => {
-      const target   = parseFloat(el.dataset.target ?? '0');
-      const decimals = parseInt(el.dataset.decimals ?? '0', 10);
-      const suffix   = el.dataset.suffix ?? '';
-      const obj      = { val: 0 };
-
-      ScrollTrigger.create({
-        trigger: el,
-        start:   'top 85%',
-        once:    true,
-        onEnter: () => {
-          if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            el.textContent = target.toFixed(decimals) + suffix;
-            return;
-          }
-          gsap.to(obj, {
-            val:      target,
-            duration: 1.8,
-            ease:     'power2.out',
-            onUpdate: () => { el.textContent = obj.val.toFixed(decimals) + suffix; },
-          });
-        },
-      });
-
-      // Init text
-      el.textContent = '0' + suffix;
+  if (heroGrid && !prefersReduced) {
+    gsap.to(heroGrid, {
+      yPercent: 35,
+      ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
     });
+    gsap.to(heroGlow1, {
+      yPercent: -25, xPercent: 10,
+      ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
+    });
+    gsap.to(heroGlow2, {
+      yPercent: 20, xPercent: -10,
+      ease: 'none',
+      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
+    });
+  }
+
+  // ── §4 PORTFOLIO HORIZONTAL SCROLL (desktop only) ─────────────────────────
+  const pinWrapper  = document.getElementById('portfolio-pin-wrapper');
+  const track       = document.getElementById('portfolio-track');
+  const progressBar = document.getElementById('portfolio-progress');
+
+  if (pinWrapper && track && window.innerWidth >= 768) {
+    const totalWidth = track.scrollWidth - window.innerWidth;
+
+    gsap.to(track, {
+      x:    () => -totalWidth,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: pinWrapper,
+        start:   'top top',
+        end:     () => `+=${pinWrapper.offsetHeight}`,
+        scrub:   1,
+        pin:     '#portfolio-pin-inner',
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          if (progressBar) progressBar.style.width = `${self.progress * 100}%`;
+        },
+      },
+    });
+  }
+
+  // ── §5 COUNTER ANIMATION ─────────────────────────────────────────────────
+  document.querySelectorAll<HTMLElement>('.counter').forEach((el) => {
+    const target   = parseFloat(el.dataset.target ?? '0');
+    const decimals = parseInt(el.dataset.decimals ?? '0', 10);
+    const suffix   = el.dataset.suffix ?? '';
+    const obj      = { val: 0 };
+
+    ScrollTrigger.create({
+      trigger: el,
+      start:   'top 85%',
+      once:    true,
+      onEnter: () => {
+        if (prefersReduced) {
+          el.textContent = target.toFixed(decimals) + suffix;
+          return;
+        }
+        gsap.to(obj, {
+          val:      target,
+          duration: 1.8,
+          ease:     'power2.out',
+          onUpdate: () => { el.textContent = obj.val.toFixed(decimals) + suffix; },
+        });
+      },
+    });
+
+    el.textContent = '0' + suffix;
   });
 
   // ── CONTACT FORM — inline validation ────────────────────────────────────────
@@ -1069,7 +1106,7 @@ const footerColumns = [
   }
 
   .form-input {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--color-form-bg);
     border: 1px solid var(--color-surface-border);
     border-radius: 10px;
     padding: 12px 16px;
@@ -1087,14 +1124,14 @@ const footerColumns = [
   }
 
   .form-input:focus {
-    border-color: rgba(12, 242, 208, 0.5);
-    background: rgba(12, 242, 208, 0.03);
-    box-shadow: 0 0 0 3px rgba(12, 242, 208, 0.08);
+    border-color: var(--color-form-focus-border);
+    background: var(--color-form-focus-bg);
+    box-shadow: 0 0 0 3px var(--color-form-focus-ring);
   }
 
   .form-input[aria-invalid="true"] {
-    border-color: rgba(255, 59, 92, 0.5);
-    box-shadow: 0 0 0 3px rgba(255, 59, 92, 0.08);
+    border-color: var(--color-form-error-border);
+    box-shadow: 0 0 0 3px var(--color-form-error-ring);
   }
 
   .form-error {
@@ -1127,5 +1164,53 @@ const footerColumns = [
 
   #cf-submit:not(:disabled):hover .btn-shimmer {
     transform: translateX(120%);
+  }
+
+  /* ── P1 Audit Fix: Portfolio mobile fallback ──────────────────────────────
+   * On mobile the GSAP pin is disabled; cards render as a 2-col grid instead.
+   * The pin-wrapper height collapses to auto on mobile via the .portfolio-mobile class.
+   */
+  @media (max-width: 767px) {
+    #portfolio-pin-wrapper {
+      height: auto !important;
+    }
+    #portfolio-pin-inner {
+      position: static !important;
+      height: auto !important;
+      overflow: visible !important;
+      padding-bottom: 2rem;
+    }
+    #portfolio-track {
+      flex-wrap: wrap;
+      transform: none !important;          /* override GSAP translateX */
+      width: auto !important;
+      padding: 0 1rem;
+      gap: 1rem;
+      justify-content: center;
+    }
+    .portfolio-card {
+      width: calc(50% - 0.5rem) !important;
+      height: 320px !important;
+      min-width: 140px;
+    }
+    #portfolio-progress {
+      display: none;
+    }
+    #portfolio-hint-desktop {
+      display: none;
+    }
+  }
+
+  /* ── P2: sr-only helper if not already in Tailwind output ─────────────── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 </style>

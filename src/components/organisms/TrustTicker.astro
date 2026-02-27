@@ -58,12 +58,12 @@ const items: Logo[] = logos.length > 0 ? logos : Array.from({ length: 8 }, (_, i
     <div
       aria-hidden="true"
       class="absolute left-0 top-0 bottom-0 w-24 z-raised pointer-events-none"
-      style="background: linear-gradient(90deg, var(--color-surface-bg, #0A0C18), transparent);"
+      style="background: linear-gradient(90deg, var(--color-surface-bg), transparent);"
     />
     <div
       aria-hidden="true"
       class="absolute right-0 top-0 bottom-0 w-24 z-raised pointer-events-none"
-      style="background: linear-gradient(-90deg, var(--color-surface-bg, #0A0C18), transparent);"
+      style="background: linear-gradient(-90deg, var(--color-surface-bg), transparent);"
     />
 
     <!-- Track: items duplicated for seamless loop -->
@@ -100,7 +100,7 @@ const items: Logo[] = logos.length > 0 ? logos : Array.from({ length: 8 }, (_, i
             <!-- Placeholder skeleton -->
             <div
               class="ticker-logo rounded-lg transition-all duration-normal ease-standard opacity-25 group-hover:opacity-60"
-              style="width: 100px; height: 32px; background: rgba(255,255,255,0.08);"
+              style="width: 100px; height: 32px; background: var(--color-wireframe);"
               aria-label={logo.name}
             />
           )}
@@ -131,7 +131,7 @@ const items: Logo[] = logos.length > 0 ? logos : Array.from({ length: 8 }, (_, i
           ) : (
             <div
               class="ticker-logo rounded-lg transition-all duration-normal ease-standard opacity-25 group-hover:opacity-60"
-              style="width: 100px; height: 32px; background: rgba(255,255,255,0.08);"
+              style="width: 100px; height: 32px; background: var(--color-wireframe);"
             />
           )}
         </div>
@@ -141,58 +141,44 @@ const items: Logo[] = logos.length > 0 ? logos : Array.from({ length: 8 }, (_, i
 </div>
 
 <script>
+  import gsap from 'gsap';
+
   /**
    * TrustTicker GSAP infinite scroll.
    * Uses gsap.to with modifiers for true infinite loop without jump.
    */
   document.querySelectorAll<HTMLElement>('#ticker-track').forEach((track) => {
-    const tryInit = () => {
-      if (typeof window.gsap === 'undefined') { setTimeout(tryInit, 100); return; }
+    const speed        = parseFloat(track.dataset.speed ?? '45');
+    const pauseOnHover = track.dataset.pauseOnHover === 'true';
 
-      const { gsap } = window;
+    const allItems     = Array.from(track.querySelectorAll<HTMLElement>('.ticker-logo-item'));
+    const halfCount    = allItems.length / 2;
+    const halfWidth    = allItems.slice(0, halfCount).reduce((sum, el) => {
+      return sum + el.getBoundingClientRect().width;
+    }, 0);
 
-      const speed        = parseFloat(track.dataset.speed ?? '45');
-      const pauseOnHover = track.dataset.pauseOnHover === 'true';
+    if (halfWidth === 0) return;
 
-      // Measure exactly half the track (the original set)
-      const allItems     = Array.from(track.querySelectorAll<HTMLElement>('.ticker-logo-item'));
-      const halfCount    = allItems.length / 2;
-      const halfWidth    = allItems.slice(0, halfCount).reduce((sum, el) => {
-        return sum + el.getBoundingClientRect().width;
-      }, 0);
+    const duration = halfWidth / speed;
 
-      if (halfWidth === 0) {
-        // DOM not ready, retry
-        setTimeout(tryInit, 100);
-        return;
-      }
+    const tween = gsap.to(track, {
+      x:        -halfWidth,
+      duration,
+      ease:     'none',
+      repeat:   -1,
+      modifiers: {
+        x: gsap.utils.unitize((x: number) => x % (-halfWidth)),
+      },
+    });
 
-      // Duration based on width / speed (px per second)
-      const duration = halfWidth / speed;
+    if (pauseOnHover) {
+      const root = track.closest('.trust-ticker-root') as HTMLElement | null;
+      root?.addEventListener('mouseenter', () => tween.pause());
+      root?.addEventListener('mouseleave', () => tween.resume());
+    }
 
-      const tween = gsap.to(track, {
-        x:        -halfWidth,
-        duration,
-        ease:     'none',
-        repeat:   -1,
-        modifiers: {
-          x: gsap.utils.unitize((x: number) => x % (-halfWidth)),
-        },
-      });
-
-      // Pause on hover
-      if (pauseOnHover) {
-        const root = track.closest('.trust-ticker-root') as HTMLElement | null;
-        root?.addEventListener('mouseenter', () => tween.pause());
-        root?.addEventListener('mouseleave', () => tween.resume());
-      }
-
-      // Respect reduced motion
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        tween.pause();
-      }
-    };
-
-    tryInit();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      tween.pause();
+    }
   });
 </script>

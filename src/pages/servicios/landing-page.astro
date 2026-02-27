@@ -956,21 +956,16 @@ const footerColumns = [
      PORTFOLIO CAROUSEL — GSAP
 ════════════════════════════════════════════════════════ -->
 <script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
   /**
    * Portfolio Carousel
    * Uses GSAP to create a smooth auto-scrolling carousel.
-   * Two behaviors:
-   *  a) Auto-scroll: plays automatically on scroll via ScrollTrigger
-   *  b) Drag: user can grab and drag the track
    */
   (function initCarousel() {
-    const tryInit = () => {
-      if (typeof window.gsap === 'undefined' || typeof window.ScrollTrigger === 'undefined') {
-        setTimeout(tryInit, 120);
-        return;
-      }
-
-      const { gsap } = window;
 
       const track    = document.getElementById('portfolio-track') as HTMLElement | null;
       const carousel = document.getElementById('portfolio-carousel') as HTMLElement | null;
@@ -1047,7 +1042,7 @@ const footerColumns = [
           x:        momentumTarget,
           duration: 0.8,
           ease:     'power3.out',
-          onComplete: () => autoTween.resume(),
+          onComplete: () => { autoTween.resume(); },
         });
       };
 
@@ -1068,9 +1063,6 @@ const footerColumns = [
           gsap.to(card, { y: 0,  scale: 1.00, duration: 0.4, ease: 'power2.inOut' });
         });
       });
-    };
-
-    tryInit();
   })();
 </script>
 

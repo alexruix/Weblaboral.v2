@@ -2,12 +2,14 @@
 /**
  * Layout.astro — Base layout
  *
- * Audit fixes applied:
- *  [2] FOUC script now adds matchMedia 'change' listener for live OS pref updates
- *  [3] initMotion() is idempotent + re-called on astro:page-load (View Transitions)
- *  [3] ScrollTrigger.getAll().forEach(t => t.kill()) before each re-init
- *  [6] Types resolved via src/types/gsap.d.ts — no `unknown` casts
+ * Audit fixes:
+ *  - GSAP, ScrollTrigger, Lenis loaded via npm (no CDN)
+ *  - waitForLibs anti-pattern eliminated (direct ES imports)
+ *  - Astro View Transitions enabled via <ClientRouter />
+ *  - FOUC prevention script preserved (synchronous is:inline)
  */
+import { ClientRouter } from 'astro:transitions';
+
 export interface SEOProps {
   title:         string;
   description:   string;
@@ -74,18 +76,8 @@ const defaultJsonLd = {
     <script type="application/ld+json" set:html={JSON.stringify(defaultJsonLd)} />
 
     <!--
-      ╔══════════════════════════════════════════════════════════╗
-      ║  FOUC PREVENTION  (audit fix #2)                         ║
-      ║                                                          ║
-      ║  Runs synchronously (is:inline) before first paint.      ║
-      ║  • Reads localStorage; falls back to OS pref.            ║
-      ║  • Applies .dark/.light to <html> before any CSS.        ║
-      ║  • Adds matchMedia 'change' listener for LIVE OS sync.   ║
-      ║                                                          ║
-      ║  Kept intentionally tiny (< 500 bytes unminified)        ║
-      ║  to minimize synchronous main-thread block time.         ║
-      ║  localStorage.getItem is ~0.01ms; matchMedia ~0.002ms.   ║
-      ╚══════════════════════════════════════════════════════════╝
+      FOUC PREVENTION — runs synchronously before first paint.
+      Reads localStorage; falls back to OS pref.
     -->
     <script is:inline>
       (function () {
@@ -98,7 +90,6 @@ const defaultJsonLd = {
           html.classList.add(theme);
         }
 
-        // ── Initial: stored pref wins; fallback to OS
         try {
           var stored = localStorage.getItem(KEY);
           apply(stored !== null ? stored : (mq.matches ? 'dark' : 'light'));
@@ -106,9 +97,6 @@ const defaultJsonLd = {
           apply(mq.matches ? 'dark' : 'light');
         }
 
-        // ── Audit fix: Live OS preference sync
-        // Only fires when no manual preference is stored.
-        // If the user chose manually, we respect that choice.
         mq.addEventListener('change', function (e) {
           try {
             if (localStorage.getItem(KEY) === null) {
@@ -121,11 +109,8 @@ const defaultJsonLd = {
       })();
     </script>
 
-    <!-- GSAP — defer keeps render non-blocking -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-    <!-- Lenis smooth scroll -->
-    <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js" defer></script>
+    <!-- Astro View Transitions — SPA-like navigation -->
+    <ClientRouter />
 
     <slot name="head" />
   </head>
@@ -152,68 +137,39 @@ const defaultJsonLd = {
 
     <slot name="footer" />
 
+    <!--
+      Motion system — GSAP + ScrollTrigger + Lenis
+      Loaded via npm ES modules. No CDN, no waitForLibs polling.
+    -->
     <script>
-      /**
-       * Motion system init — GSAP + ScrollTrigger + Lenis
-       *
-       * Audit fixes:
-       *  [3a] initMotion() cleans up old ScrollTrigger instances before re-scanning.
-       *       Prevents duplicate triggers after Astro View Transitions navigation.
-       *  [3b] Re-runs on 'astro:page-load' event for View Transitions compatibility.
-       *  [3c] Lenis is created once (idempotent guard on window.lenis).
-       *  [6]  Typed strictly via src/types/gsap.d.ts — no any/unknown casts.
-       */
+      import gsap from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+      import Lenis from 'lenis';
 
-      // Track whether libs are ready (prevents double-init on slow connections)
-      let libsReady = false;
-
-      function waitForLibs(callback: () => void, attempts = 0): void {
-        if (
-          typeof window.gsap !== 'undefined' &&
-          typeof window.ScrollTrigger !== 'undefined' &&
-          typeof window.Lenis !== 'undefined'
-        ) {
-          callback();
-        } else if (attempts < 60) {
-          setTimeout(() => waitForLibs(callback, attempts + 1), 100);
-        } else {
-          console.warn('[FinTech] Motion libs failed to load after 6s — check CDN.');
-        }
-      }
+      gsap.registerPlugin(ScrollTrigger);
 
       function initMotion(): void {
-        const { gsap, ScrollTrigger, Lenis } = window;
-
-        // Register plugin (GSAP handles duplicate registerPlugin calls gracefully)
-        gsap.registerPlugin(ScrollTrigger);
-
-        // ── Audit fix [3a]: Kill all existing ScrollTrigger instances.
-        // This is the critical step for View Transitions:
-        // without this, navigating back/forward accumulates duplicate triggers.
+        // Kill existing ScrollTrigger instances (View Transitions cleanup)
         ScrollTrigger.getAll().forEach(t => t.kill(true));
 
-        // ── Lenis: init once, reuse across navigations
-        if (!window.lenis) {
+        // Lenis: init once, reuse across navigations
+        if (!(window as any).__lenis) {
           const lenis = new Lenis({
             duration:        1.2,
             easing:          (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothTouch:     false,
-            touchMultiplier: 2,
           });
 
           lenis.on('scroll', () => ScrollTrigger.update());
           gsap.ticker.add((time: number) => lenis.raf(time * 1000));
           gsap.ticker.lagSmoothing(0);
 
-          window.lenis = lenis;
+          (window as any).__lenis = lenis;
         }
 
-        const lenis = window.lenis;
+        const lenis = (window as any).__lenis;
 
-        // ── Smooth anchor navigation
-        // Re-query each time (new anchors may have appeared after navigation)
+        // Smooth anchor navigation
         document.body.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
-          // Remove old listener by replacing node (avoids listener leak across navigations)
           const fresh = anchor.cloneNode(true) as HTMLAnchorElement;
           anchor.parentNode?.replaceChild(fresh, anchor);
           fresh.addEventListener('click', (e: MouseEvent) => {
@@ -226,11 +182,10 @@ const defaultJsonLd = {
           });
         });
 
-        // ── Skip all scroll animations if reduced motion is preferred
+        // Skip animations if reduced motion is preferred
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-        // ── Reveal animations
-        // Scope to document.body (not document) — avoids scanning <head>
+        // Reveal animations
         document.body.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
           const delay     = parseFloat(el.dataset.revealDelay ?? '0');
           const direction = el.dataset.reveal ?? 'up';
@@ -250,7 +205,7 @@ const defaultJsonLd = {
           });
         });
 
-        // ── Stagger groups
+        // Stagger groups
         document.body.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
           const children = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal-item]'));
           if (!children.length) return;
@@ -266,21 +221,17 @@ const defaultJsonLd = {
         });
       }
 
-      // ── Initial load
-      waitForLibs(() => {
-        libsReady = true;
+      // Initial load
+      initMotion();
+
+      // Astro View Transitions support
+      document.addEventListener('astro:page-load', () => {
         initMotion();
       });
 
-      // ── Audit fix [3b]: Astro View Transitions support
-      // astro:page-load fires after each new page's DOM is ready
-      document.addEventListener('astro:page-load', () => {
-        if (libsReady) initMotion();
-      });
-
-      // Pause Lenis during page swap to prevent scroll conflicts
-      document.addEventListener('astro:before-swap', () => window.lenis?.stop());
-      document.addEventListener('astro:after-swap',  () => window.lenis?.start());
+      // Pause Lenis during page swap
+      document.addEventListener('astro:before-swap', () => (window as any).__lenis?.stop());
+      document.addEventListener('astro:after-swap',  () => (window as any).__lenis?.start());
     </script>
   </body>
 </html>

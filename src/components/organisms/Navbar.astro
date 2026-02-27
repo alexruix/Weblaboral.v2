@@ -349,13 +349,11 @@ const {
     onScroll();
 
     // ── GSAP entrance animation ────────────────────────────────────────────────
-    const tryGsapEntrance = (): void => {
-      if (typeof window.gsap === 'undefined') { setTimeout(tryGsapEntrance, 100); return; }
-      window.gsap.from('#site-header', {
+    import('gsap').then(({ default: gsap }) => {
+      gsap.from('#site-header', {
         y: -80, opacity: 0, duration: 0.8, delay: 0.1, ease: 'power3.out',
       });
-    };
-    tryGsapEntrance();
+    });
 
     // ── Dropdown (desktop) ─────────────────────────────────────────────────────
     document.querySelectorAll('[data-dropdown]').forEach((dd) => {
