@@ -1,41 +1,36 @@
 ---
 /**
  * Layout.astro — Base layout
- *
- * Audit fixes:
- *  - GSAP, ScrollTrigger, Lenis loaded via npm (no CDN)
- *  - waitForLibs anti-pattern eliminated (direct ES imports)
- *  - Astro View Transitions enabled via <ClientRouter />
- *  - FOUC prevention script preserved (synchronous is:inline)
  */
-import { ClientRouter } from 'astro:transitions';
+import { ClientRouter } from "astro:transitions";
+import "../styles/global.css";
 
 export interface SEOProps {
-  title:         string;
-  description:   string;
-  canonical?:    string;
-  ogImage?:      string;
-  ogType?:       'website' | 'article';
-  noIndex?:      boolean;
-  jsonLd?:       Record<string, unknown>;
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  noIndex?: boolean;
+  jsonLd?: Record<string, unknown>;
 }
 
 interface Props {
-  seo:    SEOProps;
+  seo: SEOProps;
   class?: string;
 }
 
 const { seo, class: className } = Astro.props;
 
-const site      = Astro.site ?? new URL('https://fintech.example.com');
+const site = Astro.site ?? new URL("https://fintech.example.com");
 const canonical = seo.canonical ?? new URL(Astro.url.pathname, site).href;
-const ogImage   = seo.ogImage   ?? new URL('/og-default.jpg', site).href;
+const ogImage = seo.ogImage ?? new URL("/og-default.jpg", site).href;
 
 const defaultJsonLd = {
-  '@context':  'https://schema.org',
-  '@type':     'FinancialService',
-  name:        'FinTech Platform',
-  url:         site.href,
+  "@context": "https://schema.org",
+  "@type": "FinancialService",
+  name: "FinTech Platform",
+  url: site.href,
   description: seo.description,
   ...seo.jsonLd,
 };
@@ -48,32 +43,35 @@ const defaultJsonLd = {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>{seo.title}</title>
-    <meta name="description"  content={seo.description} />
-    <link rel="canonical"     href={canonical} />
+    <meta name="description" content={seo.description} />
+    <link rel="canonical" href={canonical} />
     {seo.noIndex && <meta name="robots" content="noindex,nofollow" />}
 
-    <meta property="og:type"         content={seo.ogType ?? 'website'} />
-    <meta property="og:title"        content={seo.title} />
-    <meta property="og:description"  content={seo.description} />
-    <meta property="og:url"          content={canonical} />
-    <meta property="og:image"        content={ogImage} />
-    <meta property="og:image:width"  content="1200" />
+    <meta property="og:type" content={seo.ogType ?? "website"} />
+    <meta property="og:title" content={seo.title} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale"       content="es_AR" />
-    <meta property="og:site_name"    content="FinTech Platform" />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content="FinTech Platform" />
 
-    <meta name="twitter:card"        content="summary_large_image" />
-    <meta name="twitter:title"       content={seo.title} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.title} />
     <meta name="twitter:description" content={seo.description} />
-    <meta name="twitter:image"       content={ogImage} />
+    <meta name="twitter:image" content={ogImage} />
 
-    <link rel="icon"             href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon"             href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest"         href="/site.webmanifest" />
-    <meta name="theme-color"     content="#0A0C18" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#0A0C18" />
 
-    <script type="application/ld+json" set:html={JSON.stringify(defaultJsonLd)} />
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(defaultJsonLd)}
+    />
 
     <!--
       FOUC PREVENTION — runs synchronously before first paint.
@@ -81,29 +79,29 @@ const defaultJsonLd = {
     -->
     <script is:inline>
       (function () {
-        var KEY  = 'ft-theme';
+        var KEY = "ft-theme";
         var html = document.documentElement;
-        var mq   = window.matchMedia('(prefers-color-scheme: dark)');
+        var mq = window.matchMedia("(prefers-color-scheme: dark)");
 
         function apply(theme) {
-          html.classList.remove('dark', 'light');
+          html.classList.remove("dark", "light");
           html.classList.add(theme);
         }
 
         try {
           var stored = localStorage.getItem(KEY);
-          apply(stored !== null ? stored : (mq.matches ? 'dark' : 'light'));
+          apply(stored !== null ? stored : mq.matches ? "dark" : "light");
         } catch (_) {
-          apply(mq.matches ? 'dark' : 'light');
+          apply(mq.matches ? "dark" : "light");
         }
 
-        mq.addEventListener('change', function (e) {
+        mq.addEventListener("change", function (e) {
           try {
             if (localStorage.getItem(KEY) === null) {
-              apply(e.matches ? 'dark' : 'light');
+              apply(e.matches ? "dark" : "light");
             }
           } catch (_) {
-            apply(e.matches ? 'dark' : 'light');
+            apply(e.matches ? "dark" : "light");
           }
         });
       })();
@@ -115,16 +113,15 @@ const defaultJsonLd = {
     <slot name="head" />
   </head>
 
-  <body class:list={['bg-surface-bg text-primary antialiased relative', className]}>
-
+  <body
+    class:list={["bg-surface-bg text-primary antialiased relative", className]}
+  >
     <a
       href="#main-content"
-      class="
-        sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4
         focus:z-skip focus:px-4 focus:py-2 focus:rounded-md
         focus:bg-brand-primary focus:text-neutral-900
-        focus:font-semibold focus:text-sm focus:shadow-glow
-      "
+        focus:font-semibold focus:text-sm focus:shadow-glow"
     >
       Ir al contenido principal
     </a>
@@ -142,24 +139,24 @@ const defaultJsonLd = {
       Loaded via npm ES modules. No CDN, no waitForLibs polling.
     -->
     <script>
-      import gsap from 'gsap';
-      import { ScrollTrigger } from 'gsap/ScrollTrigger';
-      import Lenis from 'lenis';
+      import gsap from "gsap";
+      import { ScrollTrigger } from "gsap/ScrollTrigger";
+      import Lenis from "lenis";
 
       gsap.registerPlugin(ScrollTrigger);
 
       function initMotion(): void {
         // Kill existing ScrollTrigger instances (View Transitions cleanup)
-        ScrollTrigger.getAll().forEach(t => t.kill(true));
+        ScrollTrigger.getAll().forEach((t) => t.kill(true));
 
         // Lenis: init once, reuse across navigations
         if (!(window as any).__lenis) {
           const lenis = new Lenis({
-            duration:        1.2,
-            easing:          (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            duration: 1.2,
+            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           });
 
-          lenis.on('scroll', () => ScrollTrigger.update());
+          lenis.on("scroll", () => ScrollTrigger.update());
           gsap.ticker.add((time: number) => lenis.raf(time * 1000));
           gsap.ticker.lagSmoothing(0);
 
@@ -169,77 +166,101 @@ const defaultJsonLd = {
         const lenis = (window as any).__lenis;
 
         // Smooth anchor navigation
-        document.body.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((anchor) => {
-          const fresh = anchor.cloneNode(true) as HTMLAnchorElement;
-          anchor.parentNode?.replaceChild(fresh, anchor);
-          fresh.addEventListener('click', (e: MouseEvent) => {
-            const href = fresh.getAttribute('href');
-            if (href?.startsWith('#')) {
-              e.preventDefault();
-              const target = document.querySelector(href);
-              if (target) lenis.scrollTo(target, { offset: -80, duration: 1.4 });
-            }
+        document.body
+          .querySelectorAll<HTMLAnchorElement>('a[href^="#"]')
+          .forEach((anchor) => {
+            const fresh = anchor.cloneNode(true) as HTMLAnchorElement;
+            anchor.parentNode?.replaceChild(fresh, anchor);
+            fresh.addEventListener("click", (e: MouseEvent) => {
+              const href = fresh.getAttribute("href");
+              if (href?.startsWith("#")) {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target)
+                  lenis.scrollTo(target, { offset: -80, duration: 1.4 });
+              }
+            });
           });
-        });
 
         // Skip animations if reduced motion is preferred
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+          return;
 
         // Reveal animations
-        document.body.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
-          const delay     = parseFloat(el.dataset.revealDelay ?? '0');
-          const direction = el.dataset.reveal ?? 'up';
+        document.body
+          .querySelectorAll<HTMLElement>("[data-reveal]")
+          .forEach((el) => {
+            const delay = parseFloat(el.dataset.revealDelay ?? "0");
+            const direction = el.dataset.reveal ?? "up";
 
-          const fromVars: Record<string, number> = { opacity: 0 };
-          if (direction === 'up')    fromVars['y'] = 40;
-          if (direction === 'down')  fromVars['y'] = -40;
-          if (direction === 'left')  fromVars['x'] = 40;
-          if (direction === 'right') fromVars['x'] = -40;
+            const fromVars: Record<string, number> = { opacity: 0 };
+            if (direction === "up") fromVars["y"] = 40;
+            if (direction === "down") fromVars["y"] = -40;
+            if (direction === "left") fromVars["x"] = 40;
+            if (direction === "right") fromVars["x"] = -40;
 
-          gsap.from(el, {
-            ...fromVars,
-            duration: 0.8,
-            delay,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+            gsap.from(el, {
+              ...fromVars,
+              duration: 0.8,
+              delay,
+              ease: "power3.out",
+              scrollTrigger: { trigger: el, start: "top 88%", once: true },
+            });
           });
-        });
 
         // Stagger groups
-        document.body.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
-          const children = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal-item]'));
-          if (!children.length) return;
+        document.body
+          .querySelectorAll<HTMLElement>("[data-reveal-group]")
+          .forEach((group) => {
+            const children = Array.from(
+              group.querySelectorAll<HTMLElement>("[data-reveal-item]"),
+            );
+            if (!children.length) return;
 
-          gsap.from(children, {
-            opacity: 0,
-            y:       32,
-            duration: 0.7,
-            stagger:  0.1,
-            ease:    'power3.out',
-            scrollTrigger: { trigger: group, start: 'top 85%', once: true },
+            gsap.from(children, {
+              opacity: 0,
+              y: 32,
+              duration: 0.7,
+              stagger: 0.1,
+              ease: "power3.out",
+              scrollTrigger: { trigger: group, start: "top 85%", once: true },
+            });
           });
-        });
       }
 
       // Initial load
       initMotion();
 
       // Astro View Transitions support
-      document.addEventListener('astro:page-load', () => {
+      document.addEventListener("astro:page-load", () => {
         initMotion();
       });
 
       // Pause Lenis during page swap
-      document.addEventListener('astro:before-swap', () => (window as any).__lenis?.stop());
-      document.addEventListener('astro:after-swap',  () => (window as any).__lenis?.start());
+      document.addEventListener("astro:before-swap", () =>
+        (window as any).__lenis?.stop(),
+      );
+      document.addEventListener("astro:after-swap", () =>
+        (window as any).__lenis?.start(),
+      );
     </script>
   </body>
 </html>
 
 <style is:global>
-  html.lenis                               { height: auto; }
-  .lenis.lenis-smooth                      { scroll-behavior: auto !important; }
-  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-  .lenis.lenis-stopped                     { overflow: hidden; }
-  .lenis.lenis-scrolling iframe            { pointer-events: none; }
+  html.lenis {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
 </style>
