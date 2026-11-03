@@ -1,0 +1,66 @@
+---
+import TestimonialCard from "@molecules/TestimonialCard.astro";
+import { testimonials } from "@data/site";
+import { homeData } from "@data/home";
+
+interface Props {
+  id?: string;
+  class?: string;
+}
+
+const { id = "testimonios", class: className = "" } = Astro.props;
+---
+
+<section
+  id={id}
+  class={`py-24 md:py-36 relative overflow-hidden ${className}`}
+  aria-labelledby="testimonials-heading"
+>
+  <div
+    aria-hidden="true"
+    class="absolute inset-0 pointer-events-none"
+    style="background: radial-gradient(ellipse 60% 50% at 100% 50%, var(--color-glow-primary) 0%, transparent 60%);"
+  >
+  </div>
+  <div class="container-site relative z-base">
+    <div class="text-center mb-16">
+      <div data-reveal="up" class="flex justify-center mb-4">
+        <span class="section-eyebrow">{homeData.testimonials.eyebrow}</span>
+      </div>
+      <h2
+        id="testimonials-heading"
+        data-reveal="up"
+        data-reveal-delay="0.08"
+        class="font-display font-extrabold text-primary max-w-xl mx-auto"
+        style="font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.03em; line-height: 1.05;"
+        set:html={homeData.testimonials.title}
+      />
+    </div>
+
+    <!-- Featured (2 col) -->
+    <div data-reveal-group class="grid md:grid-cols-2 gap-6 mb-6">
+      {
+        testimonials
+          .filter((t) => t.featured)
+          .map((t) => (
+            <div data-reveal-item>
+              <TestimonialCard {...t} />
+            </div>
+          ))
+      }
+    </div>
+
+    <!-- Standard (2 col) -->
+    <div data-reveal-group class="grid md:grid-cols-2 gap-6">
+      {
+        testimonials
+          .filter((t) => !t.featured)
+          .map((t) => (
+            <div data-reveal-item>
+              <TestimonialCard {...t} />
+            </div>
+          ))
+      }
+    </div>
+  </div>
+</section>

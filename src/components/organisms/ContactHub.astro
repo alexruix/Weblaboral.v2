@@ -62,7 +62,7 @@ import { contactData } from "@data/contact";
                     class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-500 ease-spring group-hover:scale-110 group-hover:shadow-lg"
                     style={`background: ${item.color}14; color: ${item.color}; border: 1px solid ${item.color}20;`}
                   >
-                    <Icon name={item.icon} size={20} />
+                    <Icon name={item.icon as any} size={20} />
                   </span>
                   <span class="text-base font-medium">{item.label}</span>
                 </a>
@@ -120,21 +120,38 @@ import { contactData } from "@data/contact";
               label={contactData.form.budgetLabel}
               options={contactData.form.budgetOptions}
             />
+          </div>
+          <!-- End Grid for service/budget, since we might want the tech stack full width -->
 
+          <!-- Progressive Profiling: Tech Stack (Hidden by default) -->
+          <div
+            id="progressive-tech-stack"
+            class="hidden overflow-hidden transition-all duration-500 ease-spring"
+          >
             <Textarea
-              id="cf-message"
-              name="mensaje"
-              label={contactData.form.messageLabel}
-              placeholder={contactData.form.messagePlaceholder}
-              required
-              rows={5}
+              id="cf-tech-stack"
+              name="tech-stack"
+              label="¿Cuál es tu Stack Técnico actual? (Opcional)"
+              placeholder="Ej. React, Node.js, AWS, Postgres..."
+              rows={3}
             />
+          </div>
 
-            <!-- CTA Magnetic Button -->
+          <Textarea
+            id="cf-message"
+            name="mensaje"
+            label={contactData.form.messageLabel}
+            placeholder={contactData.form.messagePlaceholder}
+            required
+            rows={5}
+          />
+
+          <!-- CTA Magnetic Button -->
+          <div class="mt-4 flex flex-col items-center gap-3">
             <button
               type="submit"
               id="magnetic-btn"
-              class="relative w-full h-16 rounded-xl bg-brand-primary text-[#0A0C18] font-display font-bold tracking-wide mt-4 overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary transition-colors hover:bg-[#0AEAD5]"
+              class="relative w-full h-16 rounded-xl bg-brand-primary text-[#0A0C18] font-display font-bold tracking-wide overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-brand-primary transition-colors hover:bg-[#0AEAD5]"
               aria-label={contactData.form.cta}
             >
               <div
@@ -144,33 +161,58 @@ import { contactData } from "@data/contact";
                 <Icon name="arrow-up-right" size={20} />
               </div>
             </button>
+
+            <!-- Proof of Competence Micro-copy -->
+            <p
+              class="text-[0.7rem] font-medium text-text-muted opacity-80 flex items-center gap-1.5"
+            >
+              <Icon
+                name={"shield-check" as any}
+                size={14}
+                class="text-brand-primary"
+              />
+              Al enviar, recibirás una auditoría técnica preliminar en 24hs.
+            </p>
           </div>
 
-          <!-- Footer del Formulario -->
-          <div class="pt-6 mt-6 border-t border-white/10">
-            <p class="text-center text-text-muted text-xs mb-3">
-              {contactData.form.privacyPrefix}
-              <a
-                href="/privacidad"
-                class="underline hover:text-text-secondary transition-colors"
-                >{contactData.form.privacyLinkText}</a
-              >.
-            </p>
-            <p
-              class="text-center text-xs font-mono text-text-muted tracking-wide flex items-center justify-center gap-2"
-            >
-              <span class="relative flex w-2 h-2 shrink-0">
-                <span
-                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-60"
-                ></span>
-                <span
-                  class="relative inline-flex rounded-full w-2 h-2 bg-brand-primary"
-                ></span>
-              </span>
-              {contactData.urgencyPing}
-            </p>
+          <!-- Success message (hidden) -->
+          <div
+            id="cf-success"
+            role="status"
+            aria-live="polite"
+            hidden
+            class="flex items-center gap-3 p-4 rounded-xl text-sm font-medium"
+            style="background: rgba(34, 211, 90, 0.1); color: var(--color-semantic-success); border: 1px solid rgba(34, 211, 90, 0.2);"
+          >
+            <Icon name="check" size={18} />
+            ¡Mensaje recibido! Nos pondremos en contacto pronto.
           </div>
         </form>
+
+        <!-- Footer del Formulario -->
+        <div class="pt-6 mt-6 border-t border-white/10">
+          <p class="text-center text-text-muted text-xs mb-3">
+            {contactData.form.privacyPrefix}
+            <a
+              href="/privacidad"
+              class="underline hover:text-text-secondary transition-colors"
+              >{contactData.form.privacyLinkText}</a
+            >.
+          </p>
+          <p
+            class="text-center text-xs font-mono text-text-muted tracking-wide flex items-center justify-center gap-2"
+          >
+            <span class="relative flex w-2 h-2 shrink-0">
+              <span
+                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-60"
+              ></span>
+              <span
+                class="relative inline-flex rounded-full w-2 h-2 bg-brand-primary"
+              ></span>
+            </span>
+            {contactData.urgencyPing}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -240,7 +282,9 @@ import { contactData } from "@data/contact";
     }
 
     // 3. Magnetic Button CTA
-    const btn = document.getElementById("magnetic-btn");
+    const btn = document.getElementById(
+      "magnetic-btn",
+    ) as HTMLButtonElement | null;
     const inner = btn?.querySelector(".magnetic-inner") as HTMLElement;
 
     if (
@@ -284,6 +328,136 @@ import { contactData } from "@data/contact";
         });
       });
     }
+
+    // Progressive Profiling logic
+    const budgetSelect = document.getElementById(
+      "cf-budget",
+    ) as HTMLSelectElement | null;
+    const techStackWrapper = document.getElementById("progressive-tech-stack");
+
+    if (budgetSelect && techStackWrapper) {
+      budgetSelect.addEventListener("change", (e) => {
+        const value = (e.target as HTMLSelectElement).value;
+        // Check if value includes upper bracket words like "$5.000", "$10.000" or similar based on contactData config
+        // Or checking exact index if we assume last item is Enterprise
+        if (value.includes("+$5.000") || value.includes("+$10.000")) {
+          techStackWrapper.classList.remove("hidden");
+          gsap.fromTo(
+            techStackWrapper,
+            { height: 0, opacity: 0 },
+            { height: "auto", opacity: 1, duration: 0.4, ease: "power2.out" },
+          );
+        } else {
+          gsap.to(techStackWrapper, {
+            height: 0,
+            opacity: 0,
+            duration: 0.3,
+            ease: "power2.in",
+            onComplete: () => techStackWrapper.classList.add("hidden"),
+          });
+        }
+      });
+    }
+
+    // 4. Form Validation & Submit Animation
+    const form = document.getElementById(
+      "contact-form",
+    ) as HTMLFormElement | null;
+    const btnText = btn?.querySelector("span");
+    const success = document.getElementById("cf-success") as HTMLElement | null;
+
+    // We add the spinner and checkmark dynamically to the button if they don't exist
+    if (btn && !document.getElementById("cf-btn-spinner")) {
+      const spinnerStr = `<span id="cf-btn-spinner" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none" aria-hidden="true"><svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg><span class="ml-2 text-sm">Procesando…</span></span>`;
+      const checkStr = `<span id="cf-btn-check" class="absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none" aria-hidden="true"><svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg><span class="ml-2 text-sm font-semibold">¡Enviado!</span></span>`;
+      btn.insertAdjacentHTML("beforeend", spinnerStr + checkStr);
+    }
+
+    const spinner = document.getElementById("cf-btn-spinner");
+    const check = document.getElementById("cf-btn-check");
+
+    function validateField(
+      input: HTMLInputElement | HTMLTextAreaElement,
+    ): boolean {
+      const parent = input.closest(".form-field-wrap");
+      const errEl = parent?.querySelector(".form-error");
+      const valid = input.checkValidity();
+
+      if (errEl) errEl.classList.toggle("hidden", valid);
+      input.setAttribute("aria-invalid", valid ? "false" : "true");
+      return valid;
+    }
+
+    form
+      ?.querySelectorAll<
+        HTMLInputElement | HTMLTextAreaElement
+      >("input[required], textarea[required]")
+      .forEach((el) => {
+        el.addEventListener("blur", () => validateField(el));
+        el.addEventListener("input", () => {
+          if (el.getAttribute("aria-invalid") === "true") validateField(el);
+        });
+      });
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      let allValid = true;
+
+      form
+        .querySelectorAll<
+          HTMLInputElement | HTMLTextAreaElement
+        >("input[required], textarea[required]")
+        .forEach((el) => {
+          if (!validateField(el)) allValid = false;
+        });
+
+      if (!allValid || !btn || !btnText || !spinner || !check) return;
+
+      btn.disabled = true;
+
+      // Phase 1: text → spinner
+      gsap.to(btnText, {
+        opacity: 0,
+        y: -8,
+        duration: 0.25,
+        ease: "power2.in",
+      });
+      gsap.to(spinner, {
+        opacity: 1,
+        duration: 0.3,
+        delay: 0.15,
+        ease: "power2.out",
+      });
+
+      await new Promise((r) => setTimeout(r, 1400));
+
+      // Phase 2: spinner → check
+      gsap.to(spinner, { opacity: 0, duration: 0.2, ease: "power2.in" });
+      gsap.to(check, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.4,
+        delay: 0.1,
+        ease: "back.out(1.7)",
+      });
+
+      if (success) {
+        success.hidden = false;
+        form.reset();
+      }
+
+      // Phase 3: reset after delay
+      await new Promise((r) => setTimeout(r, 2000));
+      gsap.to(check, { opacity: 0, duration: 0.2 });
+      gsap.to(btnText, {
+        opacity: 1,
+        y: 0,
+        duration: 0.3,
+        delay: 0.15,
+        ease: "power2.out",
+      });
+      btn.disabled = false;
+    });
   };
 
   initContactHub();

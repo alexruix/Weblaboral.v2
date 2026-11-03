@@ -1,0 +1,191 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Button from "../components/atoms/Button.astro";
+import Input from "../components/atoms/Input.astro";
+import Select from "../components/atoms/Select.astro";
+import Textarea from "../components/atoms/Textarea.astro";
+import ServiceCard from "../components/molecules/ServiceCard.astro";
+
+const SELECT_OPTIONS = [
+  { value: "option1", label: "Option 1" },
+  { value: "option2", label: "Option 2" },
+];
+---
+
+<Layout
+  seo={{
+    title: "Design System | TradeWeb",
+    description:
+      "Kitchen Sink para el sistema de diseño Swiss Minimalism de TradeWeb",
+    noIndex: true,
+  }}
+>
+  <div class="container-site py-24 md:py-36 min-h-screen">
+    <div class="mb-16">
+      <h1
+        class="text-4xl md:text-5xl font-display font-bold text-text-primary mb-4"
+      >
+        Design System
+      </h1>
+      <p class="text-text-secondary text-lg">
+        Manual de identidad (Swiss Minimalism + High-Fidelity) y testing de
+        Átomos/Moléculas.
+      </p>
+    </div>
+
+    <!-- Typography -->
+    <section class="mb-24">
+      <h2
+        class="text-2xl font-display font-semibold text-text-primary mb-8 border-b border-surface-border pb-4"
+      >
+        Typography & Colors
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="space-y-6">
+          <h1
+            class="text-5xl font-display font-extrabold text-text-primary text-pretty"
+          >
+            Display H1 Extrabold
+          </h1>
+          <h2
+            class="text-4xl font-display font-bold text-text-primary text-pretty"
+          >
+            Display H2 Bold
+          </h2>
+          <h3
+            class="text-2xl font-display font-bold text-text-primary text-pretty"
+          >
+            Display H3 Bold
+          </h3>
+          <p class="text-lg text-text-secondary leading-relaxed">
+            Body Text Large / Secondary. El diseño suizo se basa en el contraste
+            extremo: títulos muy pesados (extrabold) contra descripciones con
+            mucho aire y tracking normal.
+          </p>
+          <p class="text-base text-text-muted leading-relaxed">
+            Body Text Default / Muted.
+          </p>
+          <p
+            class="text-xs uppercase tracking-widest font-mono text-brand-primary"
+          >
+            Mono Text / Eyebrow
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div
+            class="h-24 rounded-2xl bg-brand-primary p-4 flex flex-col justify-end text-neutral-900 font-bold"
+          >
+            Brand Primary
+          </div>
+          <div
+            class="h-24 rounded-2xl bg-surface-card border border-surface-border p-4 flex flex-col justify-end text-text-primary"
+          >
+            Surface Card
+          </div>
+          <div
+            class="h-24 rounded-2xl bg-semantic-success p-4 flex flex-col justify-end text-white font-bold"
+          >
+            Semantic Success
+          </div>
+          <div
+            class="h-24 rounded-2xl bg-semantic-error p-4 flex flex-col justify-end text-white font-bold"
+          >
+            Semantic Error
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="mb-24">
+      <h2
+        class="text-2xl font-display font-semibold text-text-primary mb-8 border-b border-surface-border pb-4"
+      >
+        Atoms: Buttons (Magnetic CSS)
+      </h2>
+
+      <div class="flex flex-wrap items-center gap-6 p-8 glass rounded-3xl">
+        <Button variant="primary" size="lg">Primary LG</Button>
+        <Button variant="secondary">Secondary MD</Button>
+        <Button variant="ghost" size="sm">Ghost SM</Button>
+        <Button variant="danger">Danger Action</Button>
+        <Button variant="primary" loading>Loading</Button>
+      </div>
+    </section>
+
+    <!-- Forms -->
+    <section class="mb-24">
+      <h2
+        class="text-2xl font-display font-semibold text-text-primary mb-8 border-b border-surface-border pb-4"
+      >
+        Atoms: Form Elements (:valid states)
+      </h2>
+
+      <div class="max-w-2xl">
+        <form class="glass rounded-3xl p-8 sm:p-10 space-y-6">
+          <div class="grid grid-cols-2 gap-6">
+            <Input
+              id="ds-name"
+              name="name"
+              label="Nombre completo"
+              placeholder="Ej: John Doe"
+              required
+            />
+            <Input
+              id="ds-email"
+              name="email"
+              type="email"
+              label="Email corporativo"
+              placeholder="work@company.com"
+              required
+            />
+          </div>
+          <Select
+            id="ds-select"
+            name="Select"
+            label="Opciones"
+            options={SELECT_OPTIONS}
+          />
+          <Textarea
+            id="ds-text"
+            name="message"
+            label="Mensaje"
+            placeholder="Escribe tu mensaje..."
+            required
+            rows={3}
+          />
+        </form>
+      </div>
+    </section>
+
+    <!-- Molecules -->
+    <section class="mb-24">
+      <h2
+        class="text-2xl font-display font-semibold text-text-primary mb-8 border-b border-surface-border pb-4"
+      >
+        Molecules: Service Cards (GPU Accelerated)
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ServiceCard
+          id="ds-card-1"
+          title="Conversion Engineering"
+          description="Service card test with GPU-accelerated force3D hover micro-interactions."
+          icon="zap"
+          accent="primary"
+          href="#"
+        />
+        <ServiceCard
+          id="ds-card-2"
+          title="Performance Architecture"
+          description="Service card test with info semantic accent color and spotlight brightness."
+          icon="server"
+          accent="secondary"
+          href="#"
+        />
+      </div>
+    </section>
+  </div>
+</Layout>

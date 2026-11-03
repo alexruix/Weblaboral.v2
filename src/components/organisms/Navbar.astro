@@ -2,14 +2,6 @@
 /**
  * Navbar.astro — Organism
  *
- * Audit fixes applied:
- *  [5] Focus trap uses isFocusable() to filter hidden/disabled elements,
- *      preventing bugs when links are conditionally rendered.
- *  [5] Drawer uses inert attribute on background content when open —
- *      the most reliable a11y approach per ARIA spec.
- *  [6] z-index values reference Tailwind tokens (z-navbar, z-drawer, z-overlay, z-skip)
- *      instead of arbitrary z-[100] values.
- *  [6] GSAP types from src/types/gsap.d.ts — no unknown casts.
  */
 
 interface NavLink {

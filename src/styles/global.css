@@ -5,8 +5,8 @@
  * Identity: Swiss Minimalism + High-Fidelity Micro-interactions.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -37,8 +37,8 @@
   --color-semantic-info: #1B6FFF;
 
   /* ── Font Families ────────────────────────────────────────────────────── */
-  --font-display: 'Inter', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   /* ── Dynamic Shadows (Mapped to :root for Dark/Light mode) ────────────── */
@@ -59,18 +59,18 @@
   --duration-crawl: 1000ms;
 
   /* ── Z-Index Scale ────────────────────────────────────────────────────── */
-  --z-hide: -1;
-  --z-base: 0;
-  --z-raised: 10;
-  --z-dropdown: 200;
-  --z-sticky: 300;
-  --z-overlay: 400;
+  --z-negative: -10;
+  --z-behind: -1;
+  --z-base: 1;
+  --z-noise: 2;
+  /* El ruido debe estar sobre el fondo pero bajo todo lo demás */
+  --z-content: 10;
   --z-navbar: 500;
-  --z-drawer: 600;
-  --z-modal: 700;
-  --z-toast: 800;
-  --z-tooltip: 900;
-  --z-skip: 9999;
+  /* El Navbar siempre arriba */
+  --z-dropdown: 600;
+  --z-drawer: 700;
+  /* El menú móvil sobre el Navbar */
+  --z-modal: 1000;
 
   /* ── Backdrop Blur ────────────────────────────────────────────────────── */
   --backdrop-blur-xs: 2px;

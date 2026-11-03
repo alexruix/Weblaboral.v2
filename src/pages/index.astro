@@ -2,696 +2,258 @@
 /**
  * src/pages/index.astro — Agency Homepage
  *
- * Design philosophy: Neo-Minimalista · Modern Tech · Conversion-Focused
- * Reference content: tradeweb.com.ar (content only, redesigned from scratch)
- *
- * Sections:
- *  1. Hero           — Massive type + parallax + CTA shimmer
- *  2. Trust Ticker   — Greyscale → color logo loop (GSAP)
- *  3. Services Bento — Magnetic card hover grid
- *  4. Portfolio Reel — Horizontal GSAP scroll section
- *  5. Stats Bar      — 3 animated counters with ScrollTrigger
- *  6. Testimonials   — Two-column trust grid
- *  7. Contact Form   — Glassmorphism, inline validation
+ * Component-Driven Architecture layout orchestrator.
+ * All content lives in @data/home.ts and @data/site.ts.
+ * All complex logic lives encapsulated within the Organisms.
  */
 
-import Layout          from '@layouts/Layout.astro';
-import Navbar          from '@organisms/Navbar.astro';
-import Footer          from '@organisms/Footer.astro';
-import TrustTicker     from '@organisms/TrustTicker.astro';
-import Icon            from '@atoms/Icon.astro';
-import Hero            from '@organisms/Hero.astro';
-import BentoGrid       from '@organisms/BentoGrid.astro';
-import ContactHub      from '@organisms/ContactHub.astro';
-import TestimonialCard from '@molecules/TestimonialCard.astro';
-import { SERVICES } from '@data/services'; // <--- Importamos la data
+import Layout from "@layouts/Layout.astro";
+import Navbar from "@organisms/Navbar.astro";
+import Footer from "@organisms/Footer.astro";
+import Hero from "@organisms/Hero.astro";
+import TrustTicker from "@organisms/TrustTicker.astro";
+import BentoGrid from "@organisms/BentoGrid.astro";
+import PortfolioReel from "@organisms/PortfolioReel.astro";
+import StatsBar from "@organisms/StatsBar.astro";
+import TestimonialsGrid from "@organisms/TestimonialsGrid.astro";
+import ContactHub from "@organisms/ContactHub.astro";
 
-import { navLinks, portfolio, testimonials, stats, footerColumns } from '@data/site';
+import { SERVICES } from "@data/services";
+import { navLinks, footerColumns } from "@data/site";
+import { homeData } from "@data/home";
 ---
 
 <Layout
   seo={{
-    title: 'TradeWeb — Motores de Venta Digital en Córdoba | Diseño Web, SEO y Marketing',
-    description: '12 años transformando marcas con Diseño Web Premium, Marketing Estratégico e Identidad Visual en Córdoba y el mundo. Más de 280 proyectos entregados.',
-    ogType: 'website',
+    title:
+      "TradeWeb — Motores de Venta Digital en Córdoba | Diseño Web, SEO y Marketing",
+    description:
+      "12 años transformando marcas con Diseño Web Premium, Marketing Estratégico e Identidad Visual en Córdoba y el mundo. Más de 280 proyectos entregados.",
+    ogType: "website",
     jsonLd: {
-      '@type': 'ProfessionalService',
-      name: 'TradeWeb',
-      description: 'Agencia digital especializada en diseño web, SEO, publicidad digital e identidad visual en Córdoba, Argentina.',
+      "@type": "ProfessionalService",
+      name: "TradeWeb",
+      description:
+        "Agencia digital especializada en diseño web, SEO, publicidad digital e identidad visual en Córdoba, Argentina.",
       address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Córdoba',
-        addressCountry: 'AR',
+        "@type": "PostalAddress",
+        addressLocality: "Córdoba",
+        addressCountry: "AR",
       },
-      url: 'https://tradeweb.com.ar',
-      telephone: '+543515000000',
-      priceRange: '$$',
-      areaServed: ['Argentina', 'Latinoamérica'],
+      url: "https://tradeweb.com.ar",
+      telephone: "+543515000000",
+      priceRange: "$$",
+      areaServed: ["Argentina", "Latinoamérica"],
     },
   }}
 >
   <Navbar slot="navbar" links={navLinks} currentPath="/" logoText="TradeWeb" />
 
-  <!-- ═══════════════════════════════════════════════════════
-       §1  HERO
-  ══════════════════════════════════════════════════════════ -->
   <Hero
     id="hero"
-    tagline='<span class="relative flex w-2 h-2 mr-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-primary opacity-60"></span><span class="relative inline-flex rounded-full w-2 h-2 bg-brand-primary"></span></span> Córdoba, Argentina · +280 proyectos'
-    title='Ingeniería de Conversión<br/>que <span class="text-gradient">escala tu negocio</span>.'
-    subtitle='12 años transformando marcas con <strong class="text-primary font-semibold">Diseño Web Premium</strong>, <strong class="text-primary font-semibold">Marketing Estratégico</strong> e <strong class="text-primary font-semibold">Identidad Visual</strong> en Córdoba y el mundo.'
+    tagline={homeData.hero.tagline}
+    title={homeData.hero.title}
+    subtitle={homeData.hero.subtitle}
     actions={[
-      { variant: 'primary', label: 'Solicitar presupuesto gratis', href: '#contacto' },
-      { variant: 'secondary', label: 'Ver nuestros servicios', href: '#servicios' }
+      {
+        variant: "primary" as const,
+        label: homeData.hero.actions.primary.label,
+        href: homeData.hero.actions.primary.href,
+      },
+      {
+        variant: "secondary" as const,
+        label: homeData.hero.actions.secondary.label,
+        href: homeData.hero.actions.secondary.href,
+      },
     ]}
   >
     <Fragment slot="bg">
-      <div id="hero-grid" aria-hidden="true" class="absolute inset-0 noise-overlay pointer-events-none"
+      <div
+        id="hero-grid"
+        aria-hidden="true"
+        class="absolute inset-0 noise-overlay pointer-events-none"
         style="background-image: linear-gradient(var(--color-grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px); background-size: 72px 72px; opacity: 0.5;"
-      />
-      <div id="hero-glow-1" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-        style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-glow-primary) 0%, transparent 65%); border-radius: 50%;"
-      />
-      <div id="hero-glow-2" aria-hidden="true" class="absolute pointer-events-none will-change-transform"
-        style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-glow-secondary) 0%, transparent 65%); border-radius: 50%;"
-      />
-      <div aria-hidden="true" class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="animate-scan-line absolute left-0 right-0 h-px opacity-10"
-          style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent);"
-        />
+      >
       </div>
-      <div aria-hidden="true" class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
+      <div
+        id="hero-glow-1"
+        aria-hidden="true"
+        class="absolute pointer-events-none will-change-transform"
+        style="top: -20%; right: -10%; width: 70vw; height: 70vw; background: radial-gradient(circle, var(--color-glow-primary) 0%, transparent 65%); border-radius: 50%;"
+      >
+      </div>
+      <div
+        id="hero-glow-2"
+        aria-hidden="true"
+        class="absolute pointer-events-none will-change-transform"
+        style="bottom: -10%; left: -15%; width: 60vw; height: 60vw; background: radial-gradient(circle, var(--color-glow-secondary) 0%, transparent 65%); border-radius: 50%;"
+      >
+      </div>
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 pointer-events-none overflow-hidden"
+      >
+        <div
+          class="animate-scan-line absolute left-0 right-0 h-px opacity-10"
+          style="background: linear-gradient(90deg, transparent, var(--color-brand-primary), transparent);"
+        >
+        </div>
+      </div>
+      <div
+        aria-hidden="true"
+        class="absolute bottom-0 left-0 right-0 h-32 pointer-events-none"
         style="background: linear-gradient(to bottom, transparent, var(--color-surface-bg)); z-index: 10;"
-      />
+      >
+      </div>
     </Fragment>
     <Fragment slot="content">
-      <div class="mt-20 flex flex-col items-center gap-3 text-muted text-xs font-mono opacity-70">
+      <div
+        class="mt-20 flex flex-col items-center gap-3 text-muted text-xs font-mono opacity-70"
+      >
         <div id="scroll-indicator" class="flex flex-col gap-1 items-center">
-          <div class="w-px h-8 bg-gradient-to-b from-transparent to-brand-primary opacity-60 animate-pulse" />
+          <div
+            class="w-px h-8 bg-gradient-to-b from-transparent to-brand-primary opacity-60 animate-pulse"
+          >
+          </div>
         </div>
-        <p>Scroll para explorar</p>
+        <p>{homeData.hero.scrollIndicator}</p>
       </div>
     </Fragment>
   </Hero>
 
-
-  <!-- ═══════════════════════════════════════════════════════
-       §2  TRUST TICKER
-  ══════════════════════════════════════════════════════════ -->
-  <section class="py-16 border-y border-surface relative overflow-hidden" aria-label="Clientes">
-    <!-- Muted bg -->
-    <div aria-hidden="true" class="absolute inset-0"
+  <section
+    class="py-16 border-y border-surface relative overflow-hidden"
+    aria-label="Clientes"
+  >
+    <div
+      aria-hidden="true"
+      class="absolute inset-0"
       style="background: linear-gradient(180deg, var(--color-surface-bg), var(--color-surface-overlay) 50%, var(--color-surface-bg));"
-    />
+    >
+    </div>
     <TrustTicker
-      eyebrow="Empresas que confían en TradeWeb"
+      eyebrow={homeData.trustTicker.eyebrow}
       speed={40}
       class="relative z-base"
     />
   </section>
 
-
-  <!-- ═══════════════════════════════════════════════════════
-       §3  SERVICES BENTO GRID
-  ══════════════════════════════════════════════════════════ -->
   <BentoGrid
     id="servicios"
-    eyebrow="Servicios"
-    title="Todo lo que tu<br/>marca digital necesita."
-    description="Integramos diseño, tecnología y estrategia de marketing para que cada proyecto sea una inversión con retorno medible."
-    ctaLabel="Hablar con un especialista"
-    ctaHref="#contacto"
+    eyebrow={homeData.bentoGrid.eyebrow}
+    title={homeData.bentoGrid.title}
+    description={homeData.bentoGrid.description}
+    ctaLabel={homeData.bentoGrid.ctaLabel}
+    ctaHref={homeData.bentoGrid.ctaHref}
     items={SERVICES}
   />
 
+  <PortfolioReel id="portfolio" />
 
-  <!-- ═══════════════════════════════════════════════════════
-       §4  PORTFOLIO — HORIZONTAL GSAP SCROLL
-  ══════════════════════════════════════════════════════════ -->
-  <section
-    id="portfolio"
-    class="relative overflow-hidden"
-    aria-labelledby="portfolio-heading"
-    style="background: var(--color-surface-overlay);"
-  >
-    <div class="container-site pt-24 pb-10">
-      <div class="flex items-end justify-between gap-8 flex-wrap mb-16">
-        <div>
-          <div data-reveal="up" class="mb-4">
-            <span class="section-eyebrow">Portfolio</span>
-          </div>
-          <h2
-            id="portfolio-heading"
-            data-reveal="up"
-            data-reveal-delay="0.08"
-            class="font-display font-extrabold text-primary"
-            style="font-size: clamp(2rem, 4.5vw, 3.5rem); letter-spacing: -0.03em; line-height: 1.05;"
-          >
-            Trabajo que<br/>habla por sí solo.
-          </h2>
-        </div>
-        <div data-reveal="left" data-reveal-delay="0.1">
-          <a
-            href="/portfolio"
-            class="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:text-primary transition-colors duration-fast"
-          >
-            Ver todos los proyectos
-            <Icon name="arrow-up-right" size={14} />
-          </a>
-        </div>
-      </div>
-    </div>
+  <StatsBar id="la-agencia" />
 
-    <!-- Horizontal scroll container — GSAP pin -->
-    <div
-      id="portfolio-pin-wrapper"
-      class="relative"
-      style="height: 280vh;"
-      aria-label="Proyectos destacados"
-    >
-      <div
-        id="portfolio-pin-inner"
-        class="sticky top-0 h-screen flex items-center overflow-hidden"
-      >
-        <!-- Track — animated by GSAP via ScrollTrigger -->
-        <div
-          id="portfolio-track"
-          class="flex gap-6 will-change-transform"
-          style="padding: 0 max(24px, calc((100vw - 1320px)/2 + 64px));"
-        >
-          {portfolio.map((p) => (
-            <article
-              class="portfolio-card group relative flex-shrink-0 rounded-2xl overflow-hidden"
-              style={`width: min(480px, 80vw); height: 70vh; background: ${p.bg}; border: 1px solid ${p.accent}18;`}
-              aria-label={`${p.title} — ${p.category}`}
-            >
-              <!-- Top glow strip -->
-              <div
-                aria-hidden="true"
-                class="absolute top-0 left-0 right-0 h-px"
-                style={`background: linear-gradient(90deg, transparent, ${p.accent}70, transparent);`}
-              />
+  <TestimonialsGrid id="testimonios" />
 
-              <!-- Reveal overlay -->
-              <div
-                aria-hidden="true"
-                class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-slow"
-                style={`background: linear-gradient(135deg, ${p.accent}12 0%, transparent 60%);`}
-              />
-
-              <!-- A11y: real link wraps entire content -->
-              <a
-                href={`/portfolio/${p.id}`}
-                class="absolute inset-0 p-8 md:p-10 flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                style={`--tw-ring-color: ${p.accent};`}
-                aria-label={`Ver proyecto: ${p.title}`}
-              >
-                <div class="flex items-start justify-between">
-                  <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-[11px] tracking-widest uppercase font-medium"
-                    style={`background: ${p.accent}14; color: ${p.accent}; border: 1px solid ${p.accent}25;`}
-                  >
-                    {p.category}
-                  </span>
-                  <span class="text-muted text-xs" style="font-family: 'JetBrains Mono', monospace;">{p.year}</span>
-                </div>
-
-                <!-- Wireframe mockup center -->
-                <div aria-hidden="true" class="flex-1 flex items-center justify-center py-12">
-                  <div class="w-full max-w-xs space-y-3">
-                    <div class="h-2 rounded-full w-3/4 mx-auto" style={`background: ${p.accent}30;`} />
-                    <div class="h-8 rounded-lg w-full" style="background: var(--color-surface-border);" />
-                    <div class="h-8 rounded-lg w-4/5" style="background: var(--color-surface-border);" />
-                    <div class="h-4 rounded w-full mt-2" style="background: var(--color-surface-border);" />
-                    <div class="h-4 rounded w-5/6" style="background: var(--color-surface-border);" />
-                    <div class="h-10 rounded-xl w-36 mx-auto mt-4" style={`background: ${p.accent}35;`} />
-                  </div>
-                </div>
-
-                <div>
-                  <h3
-                    class="font-display font-bold text-2xl text-primary mb-2"
-                    style="letter-spacing: -0.02em;"
-                  >
-                    {p.title}
-                  </h3>
-                  <p class="text-secondary text-sm leading-snug mb-4">{p.desc}</p>
-                  <span
-                    class="inline-flex items-center gap-1.5 text-sm font-semibold"
-                    style={`color: ${p.accent};`}
-                  >
-                    Ver proyecto
-                    <Icon name="arrow-right" size={14} />
-                  </span>
-                </div>
-              </a>
-            </article>
-          ))}
-        </div>
-
-        <!-- Progress bar -->
-        <div
-          class="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3"
-          aria-hidden="true"
-        >
-          <span class="text-muted text-xs font-mono">01</span>
-          <div class="w-32 h-px bg-surface-card rounded-full overflow-hidden">
-            <div id="portfolio-progress" class="h-full bg-brand-primary rounded-full" style="width: 0%;" />
-          </div>
-          <span class="text-muted text-xs font-mono">0{portfolio.length}</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══════════════════════════════════════════════════════
-       §5  STATS BAR
-  ══════════════════════════════════════════════════════════ -->
-  <section
-    id="la-agencia"
-    class="py-20 border-y border-surface relative overflow-hidden"
-    aria-labelledby="stats-heading"
-  >
-    <h2 id="stats-heading" class="sr-only">La Agencia en números</h2>
-    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 80% 100% at 50% 50%, var(--color-glow-primary) 0%, transparent 70%);"
-    />
-    <div class="container-site relative z-base">
-      <div
-        data-reveal-group
-        class="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8 divide-x-0 lg:divide-x divide-surface"
-      >
-        {stats.map((s, i) => (
-          <div
-            data-reveal-item
-            class:list={['text-center lg:text-left', i > 0 ? 'lg:pl-8' : '']}
-          >
-            <p
-              class="counter font-display font-extrabold mb-1"
-              style={`font-size: clamp(2.5rem, 5vw, 4rem); letter-spacing: -0.04em; color: ${s.accent};`}
-              data-target={s.value}
-              data-decimals={s.decimals ?? 0}
-              data-suffix={s.suffix ?? ''}
-            >
-              {s.value}{s.suffix}
-            </p>
-            <p class="text-secondary text-sm font-mono leading-snug">{s.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══════════════════════════════════════════════════════
-       §6  TESTIMONIALS
-  ══════════════════════════════════════════════════════════ -->
-  <section
-    id="testimonios"
-    class="py-24 md:py-36 relative overflow-hidden"
-    aria-labelledby="testimonials-heading"
-  >
-    <div aria-hidden="true" class="absolute inset-0 pointer-events-none"
-      style="background: radial-gradient(ellipse 60% 50% at 100% 50%, var(--color-glow-primary) 0%, transparent 60%);"
-    />
-    <div class="container-site relative z-base">
-      <div class="text-center mb-16">
-        <div data-reveal="up" class="flex justify-center mb-4">
-          <span class="section-eyebrow">Testimonios</span>
-        </div>
-        <h2
-          id="testimonials-heading"
-          data-reveal="up"
-          data-reveal-delay="0.08"
-          class="font-display font-extrabold text-primary max-w-xl mx-auto"
-          style="font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.03em; line-height: 1.05;"
-        >
-          Lo que dicen quienes<br/>ya dieron el salto.
-        </h2>
-      </div>
-
-      <!-- Featured (2 col) -->
-      <div data-reveal-group class="grid md:grid-cols-2 gap-6 mb-6">
-        {testimonials.filter(t => t.featured).map(t => (
-          <div data-reveal-item>
-            <TestimonialCard {...t} />
-          </div>
-        ))}
-      </div>
-
-      <!-- Standard (2 col) -->
-      <div data-reveal-group class="grid md:grid-cols-2 gap-6">
-        {testimonials.filter(t => !t.featured).map(t => (
-          <div data-reveal-item>
-            <TestimonialCard {...t} />
-          </div>
-        ))}
-      </div>
-    </div>
-  </section>
-
-
-  <!-- ═══════════════════════════════════════════════════════
-       §7  CONTACT HUB — GLASSMORPHISM & MAGNETIC CTA
-  ══════════════════════════════════════════════════════════ -->
   <ContactHub id="contacto" />
 
-  <!-- Footer -->
   <Footer
     slot="footer"
     brandName="TradeWeb"
     brandTagline="12 años transformando marcas con diseño, tecnología y estrategia de marketing."
     columns={footerColumns}
     contact={{
-      email:   'hola@tradeweb.com.ar',
-      phone:   '+54 9 351 500-0000',
-      address: 'Córdoba, Argentina',
+      email: "hola@tradeweb.com.ar",
+      phone: "+54 9 351 500-0000",
+      address: "Córdoba, Argentina",
     }}
     social={{
-      instagram: 'https://instagram.com/tradeweb',
-      linkedin:  'https://linkedin.com/company/tradeweb',
-      whatsapp:  'https://wa.me/5493515000000',
+      instagram: "https://instagram.com/tradeweb",
+      linkedin: "https://linkedin.com/company/tradeweb",
+      whatsapp: "https://wa.me/5493515000000",
     }}
     legal={{
       copyright: `© ${new Date().getFullYear()} TradeWeb. Todos los derechos reservados.`,
       links: [
-        { label: 'Política de privacidad', href: '/privacidad' },
-        { label: 'Términos de uso',         href: '/terminos' },
+        { label: "Política de privacidad", href: "/privacidad" },
+        { label: "Términos de uso", href: "/terminos" },
       ],
     }}
   />
 </Layout>
 
-
-<!-- ══════════════════════════════════════════════════════
-     GLOBAL PAGE SCRIPTS
-══════════════════════════════════════════════════════ -->
 <script>
-  import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const initRevealAnimations = () => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
-  // ── §0 DATA-REVEAL SCROLL ANIMATIONS ──────────────────────────────────────
-  if (!prefersReduced) {
-    document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
-      const dir   = el.dataset.reveal ?? 'up';
-      const delay = parseFloat(el.dataset.revealDelay ?? '0');
+    // ── DATA-REVEAL SCROLL ANIMATIONS ──────────────────────────────────────
+    if (!prefersReduced) {
+      document.querySelectorAll<HTMLElement>("[data-reveal]").forEach((el) => {
+        const dir = el.dataset.reveal ?? "up";
+        const delay = parseFloat(el.dataset.revealDelay ?? "0");
 
-      gsap.fromTo(el,
-        {
-          autoAlpha: 0,
-          y: dir === 'up'   ?  28 : 0,
-          x: dir === 'left' ?  28 : dir === 'right' ? -28 : 0,
-        },
-        {
-          autoAlpha: 1, y: 0, x: 0,
-          duration: 0.65,
-          delay,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: el,
-            start:   'top 90%',
-            once:    true,
+        gsap.fromTo(
+          el,
+          {
+            autoAlpha: 0,
+            y: dir === "up" ? 28 : 0,
+            x: dir === "left" ? 28 : dir === "right" ? -28 : 0,
           },
-        }
-      );
-    });
-
-    document.querySelectorAll<HTMLElement>('[data-reveal-group]').forEach((group) => {
-      const items = group.querySelectorAll<HTMLElement>('[data-reveal-item]');
-      gsap.fromTo(items,
-        { autoAlpha: 0, y: 28 },
-        {
-          autoAlpha: 1, y: 0,
-          duration: 0.55,
-          ease: 'power2.out',
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: group,
-            start:   'top 88%',
-            once:    true,
+          {
+            autoAlpha: 1,
+            y: 0,
+            x: 0,
+            duration: 0.65,
+            delay,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              once: true,
+            },
           },
-        }
-      );
-    });
-  }
+        );
+      });
 
-  // ── §1 HERO PARALLAX ──────────────────────────────────────────────────────
-  const heroGrid  = document.getElementById('hero-grid');
-  const heroGlow1 = document.getElementById('hero-glow-1');
-  const heroGlow2 = document.getElementById('hero-glow-2');
-
-  if (heroGrid && !prefersReduced) {
-    gsap.to(heroGrid, {
-      yPercent: 35,
-      ease: 'none',
-      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true },
-    });
-    gsap.to(heroGlow1, {
-      yPercent: -25, xPercent: 10,
-      ease: 'none',
-      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
-    });
-    gsap.to(heroGlow2, {
-      yPercent: 20, xPercent: -10,
-      ease: 'none',
-      scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1.5 },
-    });
-  }
-
-  // ── §4 PORTFOLIO HORIZONTAL SCROLL (desktop only) ─────────────────────────
-  const pinWrapper  = document.getElementById('portfolio-pin-wrapper');
-  const track       = document.getElementById('portfolio-track');
-  const progressBar = document.getElementById('portfolio-progress');
-
-  if (pinWrapper && track && window.innerWidth >= 768) {
-    const totalWidth = track.scrollWidth - window.innerWidth;
-
-    gsap.to(track, {
-      x:    () => -totalWidth,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: pinWrapper,
-        start:   'top top',
-        end:     () => `+=${pinWrapper.offsetHeight}`,
-        scrub:   1,
-        pin:     '#portfolio-pin-inner',
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          if (progressBar) progressBar.style.width = `${self.progress * 100}%`;
-        },
-      },
-    });
-  }
-
-  // ── §5 COUNTER ANIMATION ─────────────────────────────────────────────────
-  document.querySelectorAll<HTMLElement>('.counter').forEach((el) => {
-    const target   = parseFloat(el.dataset.target ?? '0');
-    const decimals = parseInt(el.dataset.decimals ?? '0', 10);
-    const suffix   = el.dataset.suffix ?? '';
-    const obj      = { val: 0 };
-
-    ScrollTrigger.create({
-      trigger: el,
-      start:   'top 85%',
-      once:    true,
-      onEnter: () => {
-        if (prefersReduced) {
-          el.textContent = target.toFixed(decimals) + suffix;
-          return;
-        }
-        gsap.to(obj, {
-          val:      target,
-          duration: 1.8,
-          ease:     'power2.out',
-          onUpdate: () => { el.textContent = obj.val.toFixed(decimals) + suffix; },
+      document
+        .querySelectorAll<HTMLElement>("[data-reveal-group]")
+        .forEach((group) => {
+          const items =
+            group.querySelectorAll<HTMLElement>("[data-reveal-item]");
+          if (items.length > 0) {
+            gsap.fromTo(
+              items,
+              { autoAlpha: 0, y: 28 },
+              {
+                autoAlpha: 1,
+                y: 0,
+                duration: 0.55,
+                ease: "power2.out",
+                stagger: 0.1,
+                scrollTrigger: {
+                  trigger: group,
+                  start: "top 88%",
+                  once: true,
+                },
+              },
+            );
+          }
         });
-      },
-    });
-
-    el.textContent = '0' + suffix;
-  });
-
-  // ── CONTACT FORM — inline validation ────────────────────────────────────────
-  const form    = document.getElementById('contact-form') as HTMLFormElement | null;
-  const btnText = document.getElementById('cf-btn-text');
-  const success = document.getElementById('cf-success') as HTMLElement | null;
-
-  function validateField(input: HTMLInputElement | HTMLTextAreaElement): boolean {
-    const errEl = document.getElementById(`${input.id}-err`);
-    const valid = input.checkValidity();
-    if (errEl) errEl.classList.toggle('hidden', valid);
-    input.setAttribute('aria-invalid', valid ? 'false' : 'true');
-    return valid;
-  }
-
-  // Live validation on blur
-  form?.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]').forEach((el) => {
-    el.addEventListener('blur', () => validateField(el));
-    el.addEventListener('input', () => {
-      if (el.getAttribute('aria-invalid') === 'true') validateField(el);
-    });
-  });
-
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    let allValid = true;
-
-    form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input[required], textarea[required]').forEach((el) => {
-      if (!validateField(el)) allValid = false;
-    });
-
-    if (!allValid) return;
-
-    // GSAP-animated submit flow
-    const btn       = form.querySelector<HTMLButtonElement>('#cf-submit');
-    const spinner   = document.getElementById('cf-btn-spinner');
-    const check     = document.getElementById('cf-btn-check');
-
-    if (btn && btnText && spinner && check) {
-      btn.disabled = true;
-
-      // Phase 1: text → spinner
-      gsap.to(btnText, { opacity: 0, y: -8, duration: 0.25, ease: 'power2.in' });
-      gsap.to(spinner, { opacity: 1, duration: 0.3, delay: 0.15, ease: 'power2.out' });
-
-      await new Promise(r => setTimeout(r, 1400));
-
-      // Phase 2: spinner → check
-      gsap.to(spinner, { opacity: 0, duration: 0.2, ease: 'power2.in' });
-      gsap.to(check,   { opacity: 1, scale: 1, duration: 0.4, delay: 0.1, ease: 'back.out(1.7)' });
-
-      if (success) {
-        success.hidden = false;
-        form.reset();
-      }
-
-      // Phase 3: reset after delay
-      await new Promise(r => setTimeout(r, 2000));
-      gsap.to(check,   { opacity: 0, duration: 0.2 });
-      gsap.to(btnText, { opacity: 1, y: 0, duration: 0.3, delay: 0.15, ease: 'power2.out' });
-      btn.disabled = false;
     }
-  });
+  };
+
+  initRevealAnimations();
+  document.addEventListener("astro:page-load", initRevealAnimations);
 </script>
 
-<!-- Form field styles (global scope) -->
 <style is:global>
-  .form-field-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .form-label {
-    font-size: 0.8125rem;
-    font-weight: 500;
-    color: var(--color-text-secondary);
-    letter-spacing: 0.01em;
-  }
-
-  .form-input {
-    background: var(--color-surface-overlay);
-    border: 1px solid var(--color-surface-border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 0.875rem;
-    color: var(--color-text-primary);
-    font-family: 'DM Sans', sans-serif;
-    width: 100%;
-    transition: border-color 200ms, box-shadow 200ms, background 200ms;
-    outline: none;
-  }
-
-  .form-input::placeholder {
-    color: var(--color-text-muted);
-    opacity: 0.7;
-  }
-
-  .form-input:focus {
-    border-color: var(--color-brand-primary);
-    background: var(--color-surface-bg);
-    /* Focus outline handle globally by :focus-visible when possible, 
-       but we keep box-shadow if we want custom glow per audit */
-  }
-
-  .form-input[aria-invalid="true"] {
-    border-color: var(--color-semantic-error);
-  }
-
-  .form-error {
-    font-size: 0.75rem;
-    color: var(--color-semantic-error, #FF3B5C);
-    font-family: 'JetBrains Mono', monospace;
-  }
-
-  /* Select styling */
-  select.form-input {
-    cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B718E' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px center;
-    padding-right: 40px;
-  }
-
-  select.form-input option {
-    background: var(--color-surface-overlay, #131626);
-    color: var(--color-text-primary);
-  }
-
-  /* Shimmer on submit button */
-  .btn-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-    transform: translateX(-120%);
-    transition: transform 600ms cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-  }
-
-  #cf-submit:not(:disabled):hover .btn-shimmer {
-    transform: translateX(120%);
-  }
-
-  /* ── P1 Audit Fix: Portfolio mobile fallback ──────────────────────────────
-   * On mobile the GSAP pin is disabled; cards render as a 2-col grid instead.
-   * The pin-wrapper height collapses to auto on mobile via the .portfolio-mobile class.
-   */
-  @media (max-width: 767px) {
-    #portfolio-pin-wrapper {
-      height: auto !important;
-    }
-    #portfolio-pin-inner {
-      position: static !important;
-      height: auto !important;
-      overflow: visible !important;
-      padding-bottom: 2rem;
-    }
-    #portfolio-track {
-      flex-wrap: wrap;
-      transform: none !important;          /* override GSAP translateX */
-      width: auto !important;
-      padding: 0 1rem;
-      gap: 1rem;
-      justify-content: center;
-    }
-    .portfolio-card {
-      width: calc(50% - 0.5rem) !important;
-      height: 320px !important;
-      min-width: 140px;
-    }
-    #portfolio-progress {
-      display: none;
-    }
-    #portfolio-hint-desktop {
-      display: none;
-    }
-  }
-
-  /* ── P2: sr-only helper if not already in Tailwind output ─────────────── */
+  /* Base SR Only class for accessibility */
   .sr-only {
     position: absolute;
     width: 1px;

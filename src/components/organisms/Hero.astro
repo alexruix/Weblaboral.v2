@@ -129,6 +129,60 @@ const {
   </div>
 </section>
 
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  const initHeroParallax = () => {
+    gsap.registerPlugin(ScrollTrigger);
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    const heroGrid = document.getElementById("hero-grid");
+    const heroGlow1 = document.getElementById("hero-glow-1");
+    const heroGlow2 = document.getElementById("hero-glow-2");
+
+    if (heroGrid && !prefersReduced) {
+      gsap.to(heroGrid, {
+        yPercent: 35,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+      gsap.to(heroGlow1, {
+        yPercent: -25,
+        xPercent: 10,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.5,
+        },
+      });
+      gsap.to(heroGlow2, {
+        yPercent: 20,
+        xPercent: -10,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1.5,
+        },
+      });
+    }
+  };
+
+  initHeroParallax();
+  document.addEventListener("astro:page-load", initHeroParallax);
+</script>
+
 <style>
   /* Animación sutil de respiración para el orbe como en la imagen */
   @keyframes pulse-slow {

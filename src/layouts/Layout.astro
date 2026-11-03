@@ -206,6 +206,7 @@ const defaultJsonLd = {
               delay,
               ease: "power3.out",
               scrollTrigger: { trigger: el, start: "top 95%", once: true },
+              force3D: true, // Hardware acceleration to prevent jitter
             });
           });
 
@@ -225,13 +226,17 @@ const defaultJsonLd = {
               stagger: 0.1,
               ease: "power3.out",
               scrollTrigger: { trigger: group, start: "top 95%", once: true },
+              force3D: true, // Hardware acceleration
             });
           });
       }
 
       // Astro View Transitions support (runs on initial load too)
       document.addEventListener("astro:page-load", () => {
-        initMotion();
+        requestAnimationFrame(() => {
+          initMotion();
+          setTimeout(() => ScrollTrigger.refresh(), 100);
+        });
       });
 
       // Pause Lenis during page swap
